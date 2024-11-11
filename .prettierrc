@@ -1,0 +1,22 @@
+{
+  "useTabs": true,
+  "overrides": [
+    {
+      "files": "*.{ts,js}",
+      "options": {
+        "printWidth": 70,
+        "useTabs": false,
+        "tabWidth": 2,
+        "trailingComma": "none",
+        "arrowParens": "avoid",
+        "proseWrap": "never"
+      }
+    },
+    {
+      "files": "*.{json,babelrc,eslintrc,remarkrc,prettierrc}",
+      "options": {
+        "useTabs": false
+      }
+    }
+  ]
+}

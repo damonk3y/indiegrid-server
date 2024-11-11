@@ -1,0 +1,298 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReactionType {
+  LOVE
+}
+
+enum FunnelType {
+  FB_MESSENGER
+}
+
+enum StockStatus {
+  AVAILABLE
+  AWAITING_PAYMENT
+  AWAITING_SHIPMENT
+  SHIPPED
+  DELIVERED
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum AddressType {
+  SHIPPING
+  BILLING
+}
+
+model User {
+  id                             String         @id @default(uuid())
+  public_id                      String         @unique @default(cuid())
+  email                          String         @unique
+  password                       String
+  created_at                     DateTime       @default(now())
+  updated_at                     DateTime       @updatedAt
+  is_email_verified              Boolean        @default(false)
+  email_otp_code                 String         @default(dbgenerated("floor(random() * 1000000)::text"))
+  email_otp_code_updated_at      DateTime       @default(now())
+  is_banned                      Boolean        @default(false)
+  is_active                      Boolean        @default(false)
+  ip                             String?
+  password_reset_code            String?
+  password_reset_code_updated_at DateTime?
+  refresh_token                  String?
+  stores                         Store[]
+  manages                        StoreManager[]
+  address                        Address[]
+  direct_client_id               String?        @unique
+  direct_client                  DirectClient?  @relation(fields: [direct_client_id], references: [id])
+  coupons                        Coupon[]
+}
+
+model DirectClient {
+  id            String    @id @default(uuid())
+  public_id     String    @unique @default(cuid())
+  name          String
+  facebook_url  String?
+  instagram_url String?
+  email         String?
+  phone         String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  address       Address[]
+  users         User?
+  coupons       Coupon[]
+}
+
+model Address {
+  id               String        @id @default(uuid())
+  address_line_1   String
+  address_line_2   String?
+  address_line_3   String?
+  city             String
+  country          String
+  zip              String
+  direct_client_id String?
+  direct_client    DirectClient? @relation(fields: [direct_client_id], references: [id])
+  user_id          String?
+  user             User?         @relation(fields: [user_id], references: [id])
+  isActive         Boolean       @default(true)
+  type             AddressType
+}
+
+model Store {
+  id             String         @id @default(uuid())
+  public_id      String         @unique @default(cuid())
+  name           String
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  founder        User           @relation(fields: [founder_id], references: [id])
+  founder_id     String
+  logo_url       String?
+  managers       StoreManager[]
+  products       Product[]
+  funnels        StoreFunnel[]
+  collections    Collection[]
+  modules        StoreModules[]
+  stock_products StockProduct[]
+}
+
+model StoreModules {
+  store_id   String
+  store      Store    @relation(fields: [store_id], references: [id])
+  module_id  String
+  module     Module   @relation(fields: [module_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@id([store_id, module_id])
+}
+
+model Module {
+  id                 String         @id @default(uuid())
+  name               String         @unique
+  description        String
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+  stores_with_module StoreModules[]
+}
+
+model Collection {
+  id           String    @id @default(uuid())
+  public_id    String    @unique @default(cuid())
+  name         String
+  store_id     String
+  store        Store     @relation(fields: [store_id], references: [id])
+  is_available Boolean   @default(true)
+  created_at   DateTime
+  updated_at   DateTime
+  product      Product[]
+}
+
+model StoreManager {
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  store_id   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  store      Store    @relation(fields: [store_id], references: [id])
+
+  @@id([user_id, store_id])
+}
+
+model Product {
+  id            String          @id @default(uuid())
+  public_id     String          @unique @default(cuid())
+  name          String
+  isAvailable   Boolean         @default(true)
+  price         Float
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  store         Store           @relation(fields: [store_id], references: [id])
+  store_id      String
+  images        ProductImages[]
+  description   String
+  reactions     Reactions[]
+  funnels       ProductFunnel[]
+  collection_id String?
+  collection    Collection?     @relation(fields: [collection_id], references: [id])
+  stock         StockProduct[]
+}
+
+model ProductImages {
+  id          String   @id @default(uuid())
+  image_url   String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  product     Product  @relation(fields: [product_id], references: [id])
+  product_id  String
+  description String
+}
+
+model Reactions {
+  id         String       @id @default(uuid())
+  user_id    String
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
+  product    Product      @relation(fields: [product_id], references: [id])
+  product_id String
+  type       ReactionType
+}
+
+model ProductFunnel {
+  id          String     @id @default(uuid())
+  url         String
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  product     Product    @relation(fields: [product_id], references: [id])
+  product_id  String
+  usage_count Int        @default(0)
+  type        FunnelType
+}
+
+model StoreFunnel {
+  id         String   @id @default(uuid())
+  url        String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  store      Store    @relation(fields: [store_id], references: [id])
+  store_id   String
+}
+
+model StockProduct {
+  id                     String                             @id @default(uuid())
+  public_id              String                             @unique @default(cuid())
+  internal_reference_id  String
+  image_url              String?
+  weight_in_kgs          Float?
+  cost_price             Float?
+  selling_price          Float?
+  stock_items            StockItem[]
+  store_id               String
+  store                  Store                              @relation(fields: [store_id], references: [id])
+  images                 StockProductImages[]
+  product_id             String?
+  product                Product?                           @relation(fields: [product_id], references: [id])
+  livestream_collections StockProductLivestreamCollection[]
+}
+
+model StockProductLivestreamCollection {
+  stock_product_id         String
+  stock_product            StockProduct         @relation(fields: [stock_product_id], references: [id])
+  livestream_collection_id String
+  livestream_collection    LivestreamCollection @relation(fields: [livestream_collection_id], references: [id])
+
+  @@id([stock_product_id, livestream_collection_id])
+}
+
+model StockProductImages {
+  id               String        @id @default(uuid())
+  image_url        String?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  stock_product    StockProduct? @relation(fields: [stock_product_id], references: [id])
+  stock_product_id String?
+  description      String?
+}
+
+model LivestreamCollection {
+  id             String                             @id @default(uuid())
+  public_id      String                             @unique @default(cuid())
+  name           String?
+  created_at     DateTime                           @default(now())
+  updated_at     DateTime                           @updatedAt
+  stock_products StockProductLivestreamCollection[]
+}
+
+model StockItem {
+  id               String           @id @default(uuid())
+  public_id        String           @unique @default(cuid())
+  status           StockStatus
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  size             String?
+  color            String?
+  stock_product_id String
+  stock_product    StockProduct     @relation(fields: [stock_product_id], references: [id])
+  order_items      OrderStockItem[]
+}
+
+model OrderStockItem {
+  order_id      String
+  order         Order     @relation(fields: [order_id], references: [id])
+  stock_item_id String
+  stock_item    StockItem @relation(fields: [stock_item_id], references: [id])
+
+  @@id([order_id, stock_item_id])
+}
+
+model Order {
+  id          String           @id @default(uuid())
+  public_id   String           @unique @default(cuid())
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
+  stock_items OrderStockItem[]
+  status      OrderStatus
+}
+
+model Coupon {
+  id               String        @id @default(uuid())
+  value            Float
+  expires_at       DateTime?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  coupon_code      String        @unique @default(cuid())
+  user_id          String?
+  user             User?         @relation(fields: [user_id], references: [id])
+  direct_client_id String?
+  direct_client    DirectClient? @relation(fields: [direct_client_id], references: [id])
+}
