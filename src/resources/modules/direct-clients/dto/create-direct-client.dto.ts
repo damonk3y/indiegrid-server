@@ -104,10 +104,8 @@ export const createDirectClientValidator = async (
       "-> error validating direct client creation request",
       error
     );
-    res
-      .status(500)
-      .send({
-        message: "Error validating direct client creation request"
-      });
+    res.status(500).send({
+      message: "Error validating direct client creation request"
+    });
   }
 };

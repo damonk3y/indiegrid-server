@@ -110,10 +110,8 @@ export const patchDirectClientValidator = async (
   } catch (error) {
     logger.error("-> error validating direct client patch request");
     logger.error(error);
-    res
-      .status(500)
-      .send({
-        message: "Error validating direct client patch request"
-      });
+    res.status(500).send({
+      message: "Error validating direct client patch request"
+    });
   }
 };
