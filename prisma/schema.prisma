@@ -52,7 +52,7 @@ model User {
   refresh_token                  String?
   stores                         Store[]
   manages                        StoreManager[]
-  address                        Address[]
+  addresses                        Address[]
   direct_client_id               String?        @unique
   direct_client                  DirectClient?  @relation(fields: [direct_client_id], references: [id])
   coupons                        Coupon[]
@@ -60,6 +60,8 @@ model User {
 
 model DirectClient {
   id            String    @id @default(uuid())
+  store_id      String
+  store         Store     @relation(fields: [store_id], references: [id])
   public_id     String    @unique @default(cuid())
   name          String
   facebook_url  String?
@@ -68,7 +70,7 @@ model DirectClient {
   phone         String?
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
-  address       Address[]
+  addresses       Address[]
   users         User?
   coupons       Coupon[]
 }
@@ -104,6 +106,8 @@ model Store {
   collections    Collection[]
   modules        StoreModules[]
   stock_products StockProduct[]
+  direct_clients DirectClient[]
+  coupons        Coupon[]
 }
 
 model StoreModules {
@@ -295,4 +299,6 @@ model Coupon {
   user             User?         @relation(fields: [user_id], references: [id])
   direct_client_id String?
   direct_client    DirectClient? @relation(fields: [direct_client_id], references: [id])
+  store_id         String
+  store            Store         @relation(fields: [store_id], references: [id])
 }
