@@ -81,8 +81,8 @@ model Address {
   address_line_1   String
   address_line_2   String?
   address_line_3   String?
-  city             String
-  country          String
+  city             String?
+  country          String?
   zip              String
   direct_client_id String?
   direct_client    DirectClient? @relation(fields: [direct_client_id], references: [id])
