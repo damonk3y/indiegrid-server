@@ -1,13 +1,68 @@
 import { prisma } from "@/clients/prisma";
-import { CreateStockProductDTO } from "./dto/create-stock-product.dto";
-import { StockItem, StockStatus } from "@prisma/client";
+import { StockStatus } from "@prisma/client";
 import { minioClient } from "@/clients/minio";
 import logger from "@/utils/logger";
+import { CreateStockProductDto } from "./dto/create-stock-product.dto";
 
-export const getStoreStock = async (storeId: string) => {
+export const getStoreStock = async (
+  storeId: string,
+  searchQuery?: string
+) => {
   const stockProducts = await prisma.stockProduct.findMany({
     where: {
-      store_id: storeId
+      store_id: storeId,
+      OR: searchQuery
+        ? [
+            {
+              internal_reference_id: {
+                contains: searchQuery,
+                mode: "insensitive"
+              }
+            },
+            { id: { contains: searchQuery, mode: "insensitive" } },
+            {
+              internal_reference_id: {
+                contains: searchQuery,
+                mode: "insensitive"
+              }
+            },
+            {
+              public_id: {
+                contains: searchQuery,
+                mode: "insensitive"
+              }
+            },
+            ...(!isNaN(+searchQuery) ? [{
+              livestream_collections: {
+                some: {
+                  stock_product_id_in_livestream_collection: {
+                    equals: +searchQuery
+                  }
+                }
+              }
+            }] : []),
+            {
+              stock_items: {
+                some: {
+                  OR: [
+                    {
+                      size: {
+                        contains: searchQuery,
+                        mode: "insensitive"
+                      }
+                    },
+                    {
+                      color: {
+                        contains: searchQuery,
+                        mode: "insensitive"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        : undefined
     },
     include: {
       images: true,
@@ -36,7 +91,7 @@ export const getStoreStockProduct = async (
 
 export const createStockProduct = async (
   storeId: string,
-  stockProduct: CreateStockProductDTO,
+  stockProduct: CreateStockProductDto,
   imageUrl: string
 ) => {
   await prisma.stockProduct.create({

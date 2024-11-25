@@ -61,6 +61,7 @@ model User {
 model DirectClient {
   id            String    @id @default(uuid())
   store_id      String
+  emoji_seq     String?
   store         Store     @relation(fields: [store_id], references: [id])
   public_id     String    @unique @default(cuid())
   name          String
@@ -92,22 +93,22 @@ model Address {
 }
 
 model Store {
-  id             String         @id @default(uuid())
-  public_id      String         @unique @default(cuid())
-  name           String
-  created_at     DateTime       @default(now())
-  updated_at     DateTime       @updatedAt
-  founder        User           @relation(fields: [founder_id], references: [id])
-  founder_id     String
-  logo_url       String?
-  managers       StoreManager[]
-  products       Product[]
-  funnels        StoreFunnel[]
-  collections    Collection[]
-  modules        StoreModules[]
-  stock_products StockProduct[]
-  direct_clients DirectClient[]
-  coupons        Coupon[]
+  id                     String                 @id @default(uuid())
+  public_id              String                 @unique @default(cuid())
+  name                   String
+  created_at             DateTime               @default(now())
+  updated_at             DateTime               @updatedAt
+  founder                User                   @relation(fields: [founder_id], references: [id])
+  founder_id             String
+  logo_url               String?
+  managers               StoreManager[]
+  products               Product[]
+  funnels                StoreFunnel[]
+  collections            Collection[]
+  modules                StoreModules[]
+  stock_products         StockProduct[]
+  direct_clients         DirectClient[]
+  coupons                Coupon[]
   livestream_collections LivestreamCollection[]
 }
 
@@ -216,6 +217,12 @@ model StoreFunnel {
 model StockProduct {
   id                     String                             @id @default(uuid())
   public_id              String                             @unique @default(cuid())
+  name                   String?
+  description            String?
+  armpit_to_armpit       Int?
+  chest_around           Int?
+  waist_around           Int?
+  height                 Int?
   internal_reference_id  String
   image_url              String?
   weight_in_kgs          Float?

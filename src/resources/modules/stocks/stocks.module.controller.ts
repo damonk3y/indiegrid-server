@@ -25,8 +25,11 @@ stocksModuleController.get(
   async (req, res) => {
     try {
       const { storeId } = req.params;
-      const storeStock =
-        await stocksModuleService.getStoreStock(storeId);
+      const { search } = req.query;
+      const storeStock = await stocksModuleService.getStoreStock(
+        storeId,
+        search as string
+      );
       res.status(201).json(storeStock);
     } catch (error) {
       logger.error("Error getting store stock");

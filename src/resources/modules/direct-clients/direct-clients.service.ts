@@ -3,6 +3,23 @@ import { AddressType, DirectClient } from "@prisma/client";
 import { CreateDirectClientDTO } from "./dto/create-direct-client.dto";
 import { PatchDirectClientDTO } from "./dto/patch-direct-client.dto";
 
+const emojis = [
+  '😀', '😎', '🤖', '👽', '🎮', '🌟', '🎨', '🎭',
+  '🦁', '🐯', '🐼', '🦊', '🦄', '🐸', '🦜', '🦋',
+  '🌈', '⭐', '🔥', '💫', '❄️', '🌙', '☀️', '⚡',
+  '🎪', '🎯', '🎲', '🎸', '🎧', '🎵', '🎪', '🎨',
+  '🍕', '🍦', '🍪', '🍎', '🌮', '🍩', '🥑', '🍓'
+];
+
+const generateEmojiSequence = (): string => {
+  const sequence: string[] = [];
+  for (let i = 0; i < 4; i++) {
+    const randomIndex = Math.floor(Math.random() * emojis.length);
+    sequence.push(emojis[randomIndex]);
+  }
+  return sequence.join('');
+}
+
 export const directClientsModuleService = {
   async getStoreDirectClients(
     storeId: string
@@ -48,7 +65,8 @@ export const directClientsModuleService = {
           email: data.email,
           phone: data.phone,
           facebook_url: data.facebook_url,
-          instagram_url: data.instagram_url
+          instagram_url: data.instagram_url,
+          emoji_seq: generateEmojiSequence()
         }
       });
       if (data.addresses) {
@@ -139,5 +157,5 @@ export const directClientsModuleService = {
 
       return updatedClient;
     });
-  }
+  },
 };

@@ -5,6 +5,7 @@ import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { livestreamsService } from "./livestreams.service";
 import { createLivestreamValidator } from "./dto/create-livestream.dto";
+import { addProductToLivestreamCollectionValidator } from "./dto/add-product-to-livestream-collection.dto";
 
 export const livestreamsController = Router();
 
@@ -91,6 +92,52 @@ livestreamsController.post(
       logger.error(error);
       res.status(500).json({
         message: "Something went wrong while creating the collection"
+      });
+    }
+  }
+);
+
+livestreamsController.post(
+  "/:storeId/collections/:collectionId/products",
+  express.json(),
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  addProductToLivestreamCollectionValidator,
+  async (req, res) => {
+    try {
+      const { storeId, collectionId } = req.params;
+      const { stockProductId } = req.body;
+
+      if (!storeId || !collectionId || !stockProductId) {
+        res.status(400).json({
+          message: "store_id, collection_id and stock_product_id are required"
+        });
+        return;
+      }
+
+      logger.info(
+        { collectionId, stockProductId },
+        "[LivestreamsController] Adding product to livestream collection"
+      );
+
+      const updatedCollection = await livestreamsService.addProductToCollection(
+        collectionId,
+        stockProductId,
+        storeId
+      );
+
+      logger.info(
+        { updatedCollection },
+        "[LivestreamsController] Product added to collection successfully"
+      );
+
+      res.status(200).json(updatedCollection);
+    } catch (error) {
+      logger.error("Error adding product to livestream collection");
+      logger.error(error);
+      res.status(500).json({
+        message: "Something went wrong while adding the product to the collection"
       });
     }
   }

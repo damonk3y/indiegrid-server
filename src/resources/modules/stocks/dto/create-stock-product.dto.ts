@@ -23,23 +23,51 @@ class StockProductSize {
   quantity!: number;
 }
 
-export class CreateStockProductDTO {
+export class CreateStockProductDto {
   @IsOptional()
   @IsNumber()
-  weight_in_kgs!: number;
+  weight_in_kgs?: number;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 
   @IsOptional()
   @IsNumber()
-  cost_price!: number;
+  cost_price?: number;
 
   @IsOptional()
   @IsNumber()
-  selling_price!: number;
+  selling_price?: number;
 
   @IsDefined()
   @IsString()
   @Transform(({ value }) => sanitizeHtml(value))
   internal_reference_id!: string;
+
+  @IsOptional()
+  @IsString()
+  image_url?: string;
+
+  @IsOptional()
+  @IsNumber()
+  armpit_to_armpit?: number;
+
+  @IsOptional()
+  @IsNumber()
+  chest_around?: number;
+
+  @IsOptional()
+  @IsNumber()
+  waist_around?: number;
+
+  @IsOptional()
+  @IsNumber()
+  height?: number;
 
   @IsOptional()
   @IsArray()
@@ -60,11 +88,11 @@ export const createStockProductValidator = async (
       res.status(400).send({ message: "Body malformed" });
       return;
     }
-    const stockProduct = new CreateStockProductDTO();
+    const stockProduct = new CreateStockProductDto();
     const productLines = JSON.parse(req.body.product_lines);
     Object.assign(
       stockProduct,
-      plainToInstance(CreateStockProductDTO, {
+      plainToInstance(CreateStockProductDto, {
         ...req.body,
         product_lines: productLines,
         selling_price: parseFloat(req.body.selling_price),

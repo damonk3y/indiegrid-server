@@ -68,6 +68,41 @@ class LivestreamsService {
       }
     });
   }
+
+  async addProductToCollection(
+    collectionId: string,
+    stockProductId: string,
+    storeId: string
+  ) {
+    const collection = await prisma.livestreamCollection.findFirst({
+      where: {
+        id: collectionId,
+        store_id: storeId
+      }
+    });
+    if (!collection) {
+      throw new Error("Collection not found");
+    }
+    return await prisma.livestreamCollection.update({
+      where: {
+        id: collectionId
+      },
+      data: {
+        stock_products: {
+          create: {
+            stock_product_id: stockProductId
+          }
+        }
+      },
+      include: {
+        stock_products: {
+          include: {
+            stock_product: true
+          }
+        }
+      }
+    });
+  }
 }
 
 export const livestreamsService = new LivestreamsService();
