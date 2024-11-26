@@ -45,7 +45,7 @@ function readProductsFile() {
 const entries = readProductsFile();
 
 const products = entries.reduce((acc, entry) => {
-  let description = entry.description;
+  let description = `${entry.livestream_number}-${entry.description}`;
   if (Number.isNaN(+entry.livestream_number)) {
     description = entry.livestream_number;
   }
@@ -79,22 +79,24 @@ delete products[""];
     ) {
       leftOutProducts[key] = value;
     } else {
-      const stockProduct = await prisma.stockProduct.create({
-        data: {
-          internal_reference_id: value.description,
-          name: value.description,
-          selling_price: +value.price,
-          store_id: "f77b063d-5715-4827-b414-f01ef8daf02c"
-        }
-      });
-      for (let i = 0; i < value.quantity; i++) {
-        await prisma.stockItem.create({
+      await prisma.$transaction(async prisma => {
+        const stockProduct = await prisma.stockProduct.create({
           data: {
-            stock_product_id: stockProduct.id,
-            status: "AVAILABLE"
+            internal_reference_id: value.description,
+            name: value.description,
+            selling_price: +value.price,
+            store_id: "f77b063d-5715-4827-b414-f01ef8daf02c"
           }
         });
-      }
+        for (let i = 0; i < value.quantity; i++) {
+          const { id } = await prisma.stockItem.create({
+            data: {
+              stock_product_id: stockProduct.id,
+              status: "AVAILABLE"
+            }
+          });
+        }
+      });
     }
   }
   fs.writeFileSync(
