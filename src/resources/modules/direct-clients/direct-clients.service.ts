@@ -4,11 +4,46 @@ import { CreateDirectClientDTO } from "./dto/create-direct-client.dto";
 import { PatchDirectClientDTO } from "./dto/patch-direct-client.dto";
 
 const emojis = [
-  '😀', '😎', '🤖', '👽', '🎮', '🌟', '🎨', '🎭',
-  '🦁', '🐯', '🐼', '🦊', '🦄', '🐸', '🦜', '🦋',
-  '🌈', '⭐', '🔥', '💫', '❄️', '🌙', '☀️', '⚡',
-  '🎪', '🎯', '🎲', '🎸', '🎧', '🎵', '🎪', '🎨',
-  '🍕', '🍦', '🍪', '🍎', '🌮', '🍩', '🥑', '🍓'
+  "😀",
+  "😎",
+  "🤖",
+  "👽",
+  "🎮",
+  "🌟",
+  "🎨",
+  "🎭",
+  "🦁",
+  "🐯",
+  "🐼",
+  "🦊",
+  "🦄",
+  "🐸",
+  "🦜",
+  "🦋",
+  "🌈",
+  "⭐",
+  "🔥",
+  "💫",
+  "❄️",
+  "🌙",
+  "☀️",
+  "⚡",
+  "🎪",
+  "🎯",
+  "🎲",
+  "🎸",
+  "🎧",
+  "🎵",
+  "🎪",
+  "🎨",
+  "🍕",
+  "🍦",
+  "🍪",
+  "🍎",
+  "🌮",
+  "🍩",
+  "🥑",
+  "🍓"
 ];
 
 const generateEmojiSequence = (): string => {
@@ -17,8 +52,8 @@ const generateEmojiSequence = (): string => {
     const randomIndex = Math.floor(Math.random() * emojis.length);
     sequence.push(emojis[randomIndex]);
   }
-  return sequence.join('');
-}
+  return sequence.join("");
+};
 
 export const directClientsModuleService = {
   async getStoreDirectClients(
@@ -157,5 +192,5 @@ export const directClientsModuleService = {
 
       return updatedClient;
     });
-  },
+  }
 };

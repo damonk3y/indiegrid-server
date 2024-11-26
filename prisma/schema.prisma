@@ -17,6 +17,7 @@ enum FunnelType {
 
 enum StockStatus {
   AVAILABLE
+  CLIENT_AWAITING_PAYMENT_DETAILS
   AWAITING_PAYMENT
   AWAITING_SHIPMENT
   SHIPPED
@@ -67,6 +68,7 @@ model DirectClient {
   name          String
   facebook_url  String?
   instagram_url String?
+  handle        String?
   email         String?
   phone         String?
   created_at    DateTime  @default(now())
@@ -74,6 +76,7 @@ model DirectClient {
   addresses     Address[]
   users         User?
   coupons       Coupon[]
+  orders        Order[]
 }
 
 model Address {
@@ -110,6 +113,7 @@ model Store {
   direct_clients         DirectClient[]
   coupons                Coupon[]
   livestream_collections LivestreamCollection[]
+  orders                 Order[]
 }
 
 model StoreModules {
@@ -235,6 +239,8 @@ model StockProduct {
   product_id             String?
   product                Product?                           @relation(fields: [product_id], references: [id])
   livestream_collections StockProductLivestreamCollection[]
+  created_at             DateTime                           @default(now())
+  updated_at             DateTime                           @default(now()) @updatedAt
 }
 
 model StockProductLivestreamCollection {
@@ -292,12 +298,16 @@ model OrderStockItem {
 }
 
 model Order {
-  id          String           @id @default(uuid())
-  public_id   String           @unique @default(cuid())
-  created_at  DateTime         @default(now())
-  updated_at  DateTime         @updatedAt
-  stock_items OrderStockItem[]
-  status      OrderStatus
+  id               String           @id @default(uuid())
+  public_id        String           @unique @default(cuid())
+  store_id         String
+  store            Store            @relation(fields: [store_id], references: [id])
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  direct_client_id String?
+  direct_client    DirectClient?    @relation(fields: [direct_client_id], references: [id])
+  stock_items      OrderStockItem[]
+  status           OrderStatus
 }
 
 model Coupon {

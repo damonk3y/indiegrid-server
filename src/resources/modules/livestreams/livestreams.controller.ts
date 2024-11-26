@@ -111,7 +111,8 @@ livestreamsController.post(
 
       if (!storeId || !collectionId || !stockProductId) {
         res.status(400).json({
-          message: "store_id, collection_id and stock_product_id are required"
+          message:
+            "store_id, collection_id and stock_product_id are required"
         });
         return;
       }
@@ -121,11 +122,12 @@ livestreamsController.post(
         "[LivestreamsController] Adding product to livestream collection"
       );
 
-      const updatedCollection = await livestreamsService.addProductToCollection(
-        collectionId,
-        stockProductId,
-        storeId
-      );
+      const updatedCollection =
+        await livestreamsService.addProductToCollection(
+          collectionId,
+          stockProductId,
+          storeId
+        );
 
       logger.info(
         { updatedCollection },
@@ -137,7 +139,8 @@ livestreamsController.post(
       logger.error("Error adding product to livestream collection");
       logger.error(error);
       res.status(500).json({
-        message: "Something went wrong while adding the product to the collection"
+        message:
+          "Something went wrong while adding the product to the collection"
       });
     }
   }

@@ -32,15 +32,19 @@ export const getStoreStock = async (
                 mode: "insensitive"
               }
             },
-            ...(!isNaN(+searchQuery) ? [{
-              livestream_collections: {
-                some: {
-                  stock_product_id_in_livestream_collection: {
-                    equals: +searchQuery
+            ...(!isNaN(+searchQuery)
+              ? [
+                  {
+                    livestream_collections: {
+                      some: {
+                        stock_product_id_in_livestream_collection: {
+                          equals: +searchQuery
+                        }
+                      }
+                    }
                   }
-                }
-              }
-            }] : []),
+                ]
+              : []),
             {
               stock_items: {
                 some: {

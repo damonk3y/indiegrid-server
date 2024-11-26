@@ -1,0 +1,87 @@
+{
+  "1 peça guardada 03/11": {
+    "price": "24",
+    "quantity": 1,
+    "description": "1 peça guardada 03/11"
+  },
+  "2 peça guardadas pagas": {
+    "price": "",
+    "quantity": 1,
+    "description": "2 peça guardadas pagas"
+  },
+  "2 pecas guardadas": {
+    "price": "66",
+    "quantity": 2,
+    "description": "2 pecas guardadas"
+  },
+  "2 peças guardadas": {
+    "price": "73,5",
+    "quantity": 1,
+    "description": "2 peças guardadas"
+  },
+  "3 peças guardadas": {
+    "price": "93",
+    "quantity": 2,
+    "description": "3 peças guardadas"
+  },
+  "3 PEÇAS GUARDADAS": {
+    "price": "88",
+    "quantity": 1,
+    "description": "3 PEÇAS GUARDADAS"
+  },
+  "calça guardada": {
+    "price": "29",
+    "quantity": 1,
+    "description": "calça guardada"
+  },
+  "calças ecopele guardadas": {
+    "price": "PAGO",
+    "quantity": 1,
+    "description": "calças ecopele guardadas"
+  },
+  "camisola cinza e preta guardada": {
+    "price": "24",
+    "quantity": 1,
+    "description": "camisola cinza e preta guardada"
+  },
+  "peça guardada": {
+    "price": "paga",
+    "quantity": 1,
+    "description": "peça guardada"
+  },
+  "peça guardada paga": {
+    "price": "",
+    "quantity": 1,
+    "description": "peça guardada paga"
+  },
+  "peçaq guardada": {
+    "price": "27",
+    "quantity": 1,
+    "description": "peçaq guardada"
+  },
+  "PEÇAS GUARDADAS": {
+    "price": "213",
+    "quantity": 1,
+    "description": "PEÇAS GUARDADAS"
+  },
+  "PEÇAS GUARDADAS 03/11": {
+    "price": "",
+    "quantity": 1,
+    "description": "PEÇAS GUARDADAS 03/11"
+  },
+  "peças guardadas 10/11": {
+    "price": "",
+    "quantity": 2,
+    "description": "peças guardadas 10/11"
+  },
+  "PEÇAS GUARDADAS 27/10": {
+    "price": "",
+    "quantity": 1,
+    "description": "PEÇAS GUARDADAS 27/10"
+  },
+  "4 peças guardadas": {
+    "price": "131",
+    "quantity": 1,
+    "description": "4 peças guardadas"
+  }
+}
