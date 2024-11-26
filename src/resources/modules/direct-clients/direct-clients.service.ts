@@ -2,6 +2,7 @@ import { prisma } from "@/clients/prisma";
 import { AddressType, DirectClient } from "@prisma/client";
 import { CreateDirectClientDTO } from "./dto/create-direct-client.dto";
 import { PatchDirectClientDTO } from "./dto/patch-direct-client.dto";
+import { Pagy } from "@/utils/pagy";
 
 const emojis = [
   "😀",
@@ -57,15 +58,99 @@ const generateEmojiSequence = (): string => {
 
 export const directClientsModuleService = {
   async getStoreDirectClients(
-    storeId: string
+    storeId: string,
+    pagy: Pagy,
+    searchQuery?: string
   ): Promise<DirectClient[]> {
     return await prisma.directClient.findMany({
-      where: { store_id: storeId },
+      where: { 
+        store_id: storeId,
+        ...(searchQuery ? {
+          OR: [
+            {
+              name: {
+                contains: searchQuery,
+                mode: "insensitive"
+              }
+            },
+            {
+              email: {
+                contains: searchQuery,
+                mode: "insensitive"
+              }
+            },
+            {
+              phone: {
+                contains: searchQuery,
+                mode: "insensitive"
+              }
+            },
+            {
+              emoji_seq: {
+                contains: searchQuery,
+                mode: "insensitive"
+              }
+            },
+            {
+              handle: {
+                contains: searchQuery,
+                mode: "insensitive"
+              }
+            },
+            {
+              addresses: {
+                some: {
+                  OR: [
+                    {
+                      address_line_1: {
+                        contains: searchQuery,
+                        mode: "insensitive"
+                      }
+                    },
+                    {
+                      address_line_2: {
+                        contains: searchQuery,
+                        mode: "insensitive"
+                      }
+                    },
+                    {
+                      address_line_3: {
+                        contains: searchQuery,
+                        mode: "insensitive"
+                      }
+                    },
+                    {
+                      city: {
+                        contains: searchQuery,
+                        mode: "insensitive"
+                      }
+                    },
+                    {
+                      country: {
+                        contains: searchQuery,
+                        mode: "insensitive"
+                      }
+                    },
+                    {
+                      zip: {
+                        contains: searchQuery,
+                        mode: "insensitive"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        } : {})
+      },
       include: {
         addresses: true,
         coupons: true,
         users: true
-      }
+      },
+      skip: (pagy.page - 1) * pagy.perPage,
+      take: pagy.perPage,
     });
   },
 

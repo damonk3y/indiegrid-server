@@ -7,6 +7,7 @@ import { sessionGuard } from "@/guards/session.guard";
 import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { createStockProductValidator } from "./dto/create-stock-product.dto";
+import { Pagy } from "@/utils/pagy";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -25,9 +26,11 @@ stocksModuleController.get(
   async (req, res) => {
     try {
       const { storeId } = req.params;
-      const { search } = req.query;
+      const { search, page, per_page } = req.query;
+      const pagy = new Pagy(page as string, per_page as string);
       const storeStock = await stocksModuleService.getStoreStock(
         storeId,
+        pagy,
         search as string
       );
       res.status(201).json(storeStock);

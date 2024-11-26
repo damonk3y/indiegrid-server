@@ -5,7 +5,7 @@ import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { directClientsModuleService } from "./direct-clients.service";
 import { patchDirectClientValidator } from "./dto/patch-direct-client.dto";
-import { AuthenticatedRequest } from "@/guards/types";
+import { Pagy } from "@/utils/pagy";
 
 export const directClientsModuleController = Router();
 
@@ -18,9 +18,13 @@ directClientsModuleController.get(
   async (req, res) => {
     try {
       const { storeId } = req.params;
+      const { page, per_page, search } = req.query;
+      const pagy = new Pagy(page as string, per_page as string);
       const storeStock =
         await directClientsModuleService.getStoreDirectClients(
-          storeId
+          storeId,
+          pagy,
+          search as string
         );
       res.status(200).json(storeStock);
     } catch (error) {

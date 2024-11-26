@@ -3,10 +3,12 @@ import { StockStatus } from "@prisma/client";
 import { minioClient } from "@/clients/minio";
 import logger from "@/utils/logger";
 import { CreateStockProductDto } from "./dto/create-stock-product.dto";
+import { Pagy } from "@/utils/pagy";
 
 export const getStoreStock = async (
   storeId: string,
-  searchQuery?: string
+  pagy: Pagy,
+  searchQuery?: string,
 ) => {
   const stockProducts = await prisma.stockProduct.findMany({
     where: {
@@ -68,6 +70,8 @@ export const getStoreStock = async (
           ]
         : undefined
     },
+    skip: (pagy.page - 1) * pagy.perPage,
+    take: pagy.perPage,
     include: {
       images: true,
       stock_items: true

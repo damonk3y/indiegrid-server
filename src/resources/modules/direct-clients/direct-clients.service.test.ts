@@ -1,5 +1,6 @@
 import { prisma } from "@/clients/prisma";
 import { directClientsModuleService } from "./direct-clients.service";
+import { Pagy } from "@/utils/pagy";
 
 jest.mock("@/clients/prisma", () => ({
   prisma: {
@@ -42,7 +43,8 @@ describe("directClientsModuleService", () => {
 
       const result =
         await directClientsModuleService.getStoreDirectClients(
-          storeId
+          storeId,
+          new Pagy()
         );
 
       expect(prisma.directClient.findMany).toHaveBeenCalledWith({
