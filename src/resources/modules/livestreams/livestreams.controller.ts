@@ -145,3 +145,46 @@ livestreamsController.post(
     }
   }
 );
+
+livestreamsController.delete(
+  "/:storeId/collections/:collectionId/products/:stockProductId",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { storeId, collectionId, stockProductId } = req.params;
+
+      if (!storeId || !collectionId || !stockProductId) {
+        res.status(400).json({
+          message: "store_id, collection_id and stock_product_id are required"
+        });
+        return;
+      }
+
+      logger.info(
+        { collectionId, stockProductId },
+        "[LivestreamsController] Removing product from livestream collection"
+      );
+
+      const updatedCollection = await livestreamsService.removeProductFromCollection(
+        collectionId,
+        stockProductId,
+        storeId
+      );
+
+      logger.info(
+        { updatedCollection },
+        "[LivestreamsController] Product removed from collection successfully"
+      );
+
+      res.status(200).json(updatedCollection);
+    } catch (error) {
+      logger.error("Error removing product from livestream collection");
+      logger.error(error);
+      res.status(500).json({
+        message: "Something went wrong while removing the product from the collection"
+      });
+    }
+  }
+);

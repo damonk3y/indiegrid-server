@@ -8,7 +8,7 @@ import { Pagy } from "@/utils/pagy";
 export const getStoreStock = async (
   storeId: string,
   pagy: Pagy,
-  searchQuery?: string,
+  searchQuery?: string
 ) => {
   const stockProducts = await prisma.stockProduct.findMany({
     where: {

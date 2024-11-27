@@ -273,6 +273,7 @@ model LivestreamCollection {
   created_at     DateTime                           @default(now())
   updated_at     DateTime                           @updatedAt
   stock_products StockProductLivestreamCollection[]
+  orders         Order[]
 }
 
 model StockItem {
@@ -305,6 +306,8 @@ model Order {
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
   direct_client_id String?
+  livestream_collection_id String?
+  livestream_collection LivestreamCollection? @relation(fields: [livestream_collection_id], references: [id])
   direct_client    DirectClient?    @relation(fields: [direct_client_id], references: [id])
   stock_items      OrderStockItem[]
   status           OrderStatus

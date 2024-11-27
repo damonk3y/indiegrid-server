@@ -1,5 +1,5 @@
 import { prisma } from "@/clients/prisma";
-import { AddressType, DirectClient } from "@prisma/client";
+import { Address, AddressType, DirectClient } from "@prisma/client";
 import { CreateDirectClientDTO } from "./dto/create-direct-client.dto";
 import { PatchDirectClientDTO } from "./dto/patch-direct-client.dto";
 import { Pagy } from "@/utils/pagy";
@@ -63,94 +63,102 @@ export const directClientsModuleService = {
     searchQuery?: string
   ): Promise<DirectClient[]> {
     return await prisma.directClient.findMany({
-      where: { 
+      where: {
         store_id: storeId,
-        ...(searchQuery ? {
-          OR: [
-            {
-              name: {
-                contains: searchQuery,
-                mode: "insensitive"
-              }
-            },
-            {
-              email: {
-                contains: searchQuery,
-                mode: "insensitive"
-              }
-            },
-            {
-              phone: {
-                contains: searchQuery,
-                mode: "insensitive"
-              }
-            },
-            {
-              emoji_seq: {
-                contains: searchQuery,
-                mode: "insensitive"
-              }
-            },
-            {
-              handle: {
-                contains: searchQuery,
-                mode: "insensitive"
-              }
-            },
-            {
-              addresses: {
-                some: {
-                  OR: [
-                    {
-                      address_line_1: {
-                        contains: searchQuery,
-                        mode: "insensitive"
-                      }
-                    },
-                    {
-                      address_line_2: {
-                        contains: searchQuery,
-                        mode: "insensitive"
-                      }
-                    },
-                    {
-                      address_line_3: {
-                        contains: searchQuery,
-                        mode: "insensitive"
-                      }
-                    },
-                    {
-                      city: {
-                        contains: searchQuery,
-                        mode: "insensitive"
-                      }
-                    },
-                    {
-                      country: {
-                        contains: searchQuery,
-                        mode: "insensitive"
-                      }
-                    },
-                    {
-                      zip: {
-                        contains: searchQuery,
-                        mode: "insensitive"
-                      }
+        ...(searchQuery
+          ? {
+              OR: [
+                {
+                  name: {
+                    contains: searchQuery,
+                    mode: "insensitive"
+                  }
+                },
+                {
+                  email: {
+                    contains: searchQuery,
+                    mode: "insensitive"
+                  }
+                },
+                {
+                  phone: {
+                    contains: searchQuery,
+                    mode: "insensitive"
+                  }
+                },
+                {
+                  emoji_seq: {
+                    contains: searchQuery,
+                    mode: "insensitive"
+                  }
+                },
+                {
+                  handle: {
+                    contains: searchQuery,
+                    mode: "insensitive"
+                  }
+                },
+                {
+                  addresses: {
+                    some: {
+                      OR: [
+                        {
+                          address_line_1: {
+                            contains: searchQuery,
+                            mode: "insensitive"
+                          }
+                        },
+                        {
+                          address_line_2: {
+                            contains: searchQuery,
+                            mode: "insensitive"
+                          }
+                        },
+                        {
+                          address_line_3: {
+                            contains: searchQuery,
+                            mode: "insensitive"
+                          }
+                        },
+                        {
+                          city: {
+                            contains: searchQuery,
+                            mode: "insensitive"
+                          }
+                        },
+                        {
+                          country: {
+                            contains: searchQuery,
+                            mode: "insensitive"
+                          }
+                        },
+                        {
+                          zip: {
+                            contains: searchQuery,
+                            mode: "insensitive"
+                          }
+                        }
+                      ]
                     }
-                  ]
+                  }
                 }
-              }
+              ]
             }
-          ]
-        } : {})
+          : {})
       },
       include: {
         addresses: true,
         coupons: true,
-        users: true
+        users: true,
+        orders: true
+      },
+      orderBy: {
+        orders: {
+          _count: "desc"
+        }
       },
       skip: (pagy.page - 1) * pagy.perPage,
-      take: pagy.perPage,
+      take: pagy.perPage
     });
   },
 
@@ -276,6 +284,59 @@ export const directClientsModuleService = {
       }
 
       return updatedClient;
+    });
+  },
+
+  async deleteDirectClient(
+    storeId: string,
+    clientId: string
+  ): Promise<DirectClient> {
+    return await prisma.$transaction(async tx => {
+      await tx.address.deleteMany({
+        where: { direct_client_id: clientId }
+      });
+      return await tx.directClient.delete({
+        where: {
+          id: clientId,
+          store_id: storeId
+        }
+      });
+    });
+  },
+
+  async deleteDirectClientAddress(
+    _: string,
+    clientId: string,
+    addressId: string
+  ): Promise<Address> {
+    const result = await prisma.address.delete({
+      where: {
+        id: addressId,
+        direct_client_id: clientId
+      }
+    });
+    return result;
+  },
+
+  async createDirectClientAddress(
+    storeId: string,
+    clientId: string
+  ): Promise<DirectClient> {
+    return await prisma.directClient.update({
+      where: {
+        id: clientId,
+        store_id: storeId
+      },
+      data: {
+        addresses: {
+          create: {
+            zip: "0000-000",
+            type: AddressType.SHIPPING,
+            isActive: true,
+            address_line_1: ""
+          }
+        }
+      }
     });
   }
 };

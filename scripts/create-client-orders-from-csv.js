@@ -30,7 +30,9 @@ function readProductsFile() {
         excel_id: excel_id || undefined,
         livestream_number: livestream_number || undefined,
         price: price || undefined,
-        description: description ? `${livestream_number}-${description}` : livestream_number || undefined,
+        description: description
+          ? `${livestream_number}-${description}`
+          : livestream_number || undefined,
         color: color || undefined,
         size2: size2 || undefined,
         id: id || undefined

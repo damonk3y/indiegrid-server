@@ -59,7 +59,7 @@ directClientsModuleController.get(
 );
 
 directClientsModuleController.post(
-  "/stores/:storeId/direct-clients",
+  "/stores/:storeId",
   sessionGuard,
   storeManagerGuard,
   storeModuleGuard,
@@ -93,7 +93,7 @@ directClientsModuleController.post(
 );
 
 directClientsModuleController.patch(
-  "/stores/:storeId/direct-clients/:clientId",
+  "/stores/:storeId/:clientId",
   sessionGuard,
   storeManagerGuard,
   storeModuleGuard,
@@ -125,6 +125,115 @@ directClientsModuleController.patch(
       res.status(500).json({
         message:
           "Something went wrong while updating the direct client"
+      });
+    }
+  }
+);
+
+directClientsModuleController.delete(
+  "/stores/:storeId/:clientId",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { storeId, clientId } = req.params;
+      logger.info(
+        { storeId, clientId },
+        "[DirectClientsController] Deleting direct client"
+      );
+
+      const deletedClient =
+        await directClientsModuleService.deleteDirectClient(
+          storeId,
+          clientId
+        );
+
+      logger.info(
+        { deletedClient },
+        "[DirectClientsController] Direct client deleted successfully"
+      );
+
+      res.status(200).json(deletedClient);
+    } catch (error) {
+      logger.error("Error deleting direct client");
+      logger.error(error);
+      res.status(500).json({
+        message:
+          "Something went wrong while deleting the direct client"
+      });
+    }
+  }
+);
+
+directClientsModuleController.post(
+  "/stores/:storeId/:clientId/addresses/",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { storeId, clientId } = req.params;
+      logger.info(
+        { storeId, clientId },
+        "[DirectClientsController] Creating direct client address"
+      );
+
+      const deletedClient =
+        await directClientsModuleService.createDirectClientAddress(
+          storeId,
+          clientId
+        );
+
+      logger.info(
+        { deletedClient },
+        "[DirectClientsController] Direct client address created successfully"
+      );
+
+      res.status(200).json(deletedClient);
+    } catch (error) {
+      logger.error("Error deleting direct client");
+      logger.error(error);
+      res.status(500).json({
+        message:
+          "Something went wrong while deleting the direct client"
+      });
+    }
+  }
+);
+
+directClientsModuleController.delete(
+  "/stores/:storeId/:clientId/addresses/:addressId",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { storeId, clientId, addressId } = req.params;
+      logger.info(
+        { storeId, clientId, addressId },
+        "[DirectClientsController] Deleting direct client address"
+      );
+
+      const deletedClient =
+        await directClientsModuleService.deleteDirectClientAddress(
+          storeId,
+          clientId,
+          addressId
+        );
+
+      logger.info(
+        { deletedClient },
+        "[DirectClientsController] Direct client deleted successfully"
+      );
+
+      res.status(200).json(deletedClient);
+    } catch (error) {
+      logger.error("Error deleting direct client");
+      logger.error(error);
+      res.status(500).json({
+        message:
+          "Something went wrong while deleting the direct client"
       });
     }
   }
