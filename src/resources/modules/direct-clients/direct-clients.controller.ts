@@ -6,6 +6,8 @@ import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { directClientsModuleService } from "./direct-clients.service";
 import { patchDirectClientValidator } from "./dto/patch-direct-client.dto";
 import { Pagy } from "@/utils/pagy";
+import { reserveProductValidator } from "./dto/reserve-product.dto";
+import { cancelProductReservationValidator } from "./dto/cancel-product-reservation.dto";
 
 export const directClientsModuleController = Router();
 
@@ -234,6 +236,88 @@ directClientsModuleController.delete(
       res.status(500).json({
         message:
           "Something went wrong while deleting the direct client"
+      });
+    }
+  }
+);
+
+directClientsModuleController.post(
+  "/stores/:storeId/:clientId/orders/products/:productId",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  express.json(),
+  reserveProductValidator,
+  async (req, res) => {
+    try {
+      const { storeId, clientId, productId } = req.params;
+      logger.info(
+        { storeId, clientId, productId },
+        "[DirectClientsController] Reserving product for direct client"
+      );
+
+      const reservation =
+        await directClientsModuleService.reserveProduct(
+          storeId,
+          clientId,
+          productId,
+          req.body.quantity,
+          req.body.livestreamCollectionId
+        );
+
+      logger.info(
+        { reservation },
+        "[DirectClientsController] Product reserved successfully"
+      );
+
+      res.status(201).json(reservation);
+    } catch (error) {
+      logger.error("Error reserving product for direct client");
+      logger.error(error);
+      res.status(500).json({
+        message: "Something went wrong while reserving the product"
+      });
+    }
+  }
+);
+
+directClientsModuleController.delete(
+  "/stores/:storeId/:clientId/orders/products/:productId",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  express.json(),
+  cancelProductReservationValidator,
+  async (req, res) => {
+    try {
+      const { storeId, clientId, productId } =
+        req.params;
+      logger.info(
+        { storeId, clientId, productId },
+        "[DirectClientsController] Canceling product reservation"
+      );
+
+      const canceledReservation =
+        await directClientsModuleService.cancelReservation(
+          storeId,
+          clientId,
+          productId,
+          req.body.quantity,
+          req.body.livestreamCollectionId
+        );
+
+      logger.info(
+        { canceledReservation },
+        "[DirectClientsController] Product reservation canceled successfully"
+      );
+
+      res.status(200).json(canceledReservation);
+    } catch (error) {
+      logger.error("Error canceling product reservation");
+      logger.error(error);
+      res.status(500).json({
+        message:
+          "Something went wrong while canceling the reservation"
       });
     }
   }

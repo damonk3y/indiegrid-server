@@ -34,3 +34,34 @@ ordersController.get(
     }
   }
 );
+
+ordersController.get(
+  "/stores/:storeId/products/:productId/orders",
+  express.json(),
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { productId, storeId } = req.params;
+      const { livestream_collection_id } = req.query;
+
+      if (!storeId || !productId) {
+        res
+          .status(400)
+          .json({ message: "Store ID and product ID are required" });
+        return;
+      }
+      const productOrders = await ordersService.getProductOrders(
+        storeId,
+        productId,
+        livestream_collection_id as string | undefined
+      );
+      res.status(200).json(productOrders);
+    } catch (error) {
+      logger.error("Error getting product orders");
+      logger.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+);

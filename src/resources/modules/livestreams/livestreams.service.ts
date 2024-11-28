@@ -90,7 +90,7 @@ class LivestreamsService {
 
     // Check if product already exists in collection
     const existingProduct = collection.stock_products.find(
-      (product) => product.stock_product_id === stockProductId
+      product => product.stock_product_id === stockProductId
     );
 
     if (existingProduct) {
@@ -105,11 +105,12 @@ class LivestreamsService {
         stock_products: {
           create: {
             stock_product_id: stockProductId,
-            stock_product_id_in_livestream_collection: (await prisma.stockProductLivestreamCollection.count({
-              where: {
-                livestream_collection_id: collectionId
-              }
-            })) + 1
+            stock_product_id_in_livestream_collection:
+              (await prisma.stockProductLivestreamCollection.count({
+                where: {
+                  livestream_collection_id: collectionId
+                }
+              })) + 1
           }
         }
       },

@@ -1,5 +1,12 @@
 import { prisma } from "@/clients/prisma";
-import { Address, AddressType, DirectClient } from "@prisma/client";
+import {
+  Address,
+  AddressType,
+  DirectClient,
+  Order,
+  OrderStatus,
+  StockStatus
+} from "@prisma/client";
 import { CreateDirectClientDTO } from "./dto/create-direct-client.dto";
 import { PatchDirectClientDTO } from "./dto/patch-direct-client.dto";
 import { Pagy } from "@/utils/pagy";
@@ -338,5 +345,117 @@ export const directClientsModuleService = {
         }
       }
     });
+  },
+
+  async reserveProduct(
+    storeId: string,
+    clientId: string,
+    productId: string,
+    quantity: number,
+    livestreamCollectionId?: string
+  ): Promise<Order> {
+    return prisma.$transaction(async prisma => {
+      const stockItem = await prisma.stockItem.findFirst({
+        where: {
+          stock_product: {
+            id: productId
+          },
+          status: StockStatus.AVAILABLE
+        }
+      });
+      if (!stockItem) {
+        throw new Error("No stock available anymore");
+      }
+      const clientActiveOrders = await prisma.order.findMany({
+        where: {
+          direct_client_id: clientId,
+          store_id: storeId,
+          OR: [
+            {
+              status: {
+                not: OrderStatus.SHIPPED
+              }
+            },
+            {
+              status: {
+                not: OrderStatus.DELIVERED
+              }
+            }
+          ]
+        },
+        orderBy: {
+          created_at: "desc"
+        },
+        take: 1
+      });
+      let order = clientActiveOrders[0];
+      if (!order) {
+        order = await prisma.order.create({
+          data: {
+            status: "CLIENT_AWAITNG_PAYMENT_DETAILS",
+            direct_client_id: clientId,
+            store_id: storeId,
+            livestream_collection_id: livestreamCollectionId
+          }
+        });
+      }
+      for (let i = 0; i < quantity; i++) {
+        await prisma.orderStockItem.create({
+          data: {
+            order_id: order.id,
+            stock_item_id: stockItem.id
+          }
+        });
+        await prisma.stockItem.update({
+          where: { id: stockItem.id },
+          data: {
+            status: StockStatus.RESERVED
+          }
+        });
+      }
+      return order;
+    });
+  },
+
+  async cancelReservation(
+    storeId: string,
+    clientId: string,
+    productId: string,
+    quantity: number,
+    livestreamCollectionId?: string
+  ): Promise<string> {
+    await prisma.$transaction(async prisma => {
+      for (let i = 0; i < quantity; i++) {
+        const orderStockItem = await prisma.orderStockItem.findFirst({
+          where: {
+            order: {
+              direct_client_id: clientId,
+              store_id: storeId,
+              ...(livestreamCollectionId && {
+                livestream_collection_id: livestreamCollectionId
+              })
+            },
+            stock_item: {
+              stock_product_id: productId,
+              status: StockStatus.RESERVED
+            }
+          }
+        });
+
+        if (!orderStockItem) {
+          throw new Error('Order stock item not found');
+        }
+
+        await prisma.stockItem.update({
+          where: { id: orderStockItem.stock_item_id },
+          data: { status: StockStatus.AVAILABLE }
+        });
+
+        await prisma.orderStockItem.delete({
+          where: { id: orderStockItem.id }
+        });
+      }
+    });
+    return "Reservation canceled successfully";
   }
 };

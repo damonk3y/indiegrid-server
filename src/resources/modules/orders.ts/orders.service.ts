@@ -37,5 +37,41 @@ export const ordersService = {
         }
       }
     });
+  },
+
+  async getProductOrders(
+    storeId: string,
+    productId: string,
+    livestreamCollectionId?: string
+  ): Promise<Order[]> {
+    return await prisma.order.findMany({
+      where: {
+        store_id: storeId,
+        ...(livestreamCollectionId && {
+          livestream_collection_id: livestreamCollectionId
+        }),
+        stock_items: {
+          some: {
+            stock_item: {
+              stock_product: {
+                id: productId
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        created_at: "desc"
+      },
+      include: {
+        _count: {
+          select: {
+            stock_items: true
+          }
+        },
+        direct_client: true,
+        stock_items: true
+      }
+    });
   }
 };

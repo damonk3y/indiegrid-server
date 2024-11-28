@@ -17,16 +17,20 @@ enum FunnelType {
 
 enum StockStatus {
   AVAILABLE
-  CLIENT_AWAITING_PAYMENT_DETAILS
-  AWAITING_PAYMENT
-  AWAITING_SHIPMENT
-  SHIPPED
-  DELIVERED
+  RESERVED
+  STORED_TO_SHIP_LATER
+  SENT
+  RETURNED
+  UNSELLABLE
 }
 
 enum OrderStatus {
+  OPEN
+  CLIENT_AWAITNG_PAYMENT_DETAILS
+  AWAITING_PAYMENT
   PENDING
-  COMPLETED
+  SHIPPED
+  DELIVERED
   CANCELLED
 }
 
@@ -290,27 +294,28 @@ model StockItem {
 }
 
 model OrderStockItem {
+  id            String    @id @default(uuid())
   order_id      String
   order         Order     @relation(fields: [order_id], references: [id])
   stock_item_id String
   stock_item    StockItem @relation(fields: [stock_item_id], references: [id])
-
-  @@id([order_id, stock_item_id])
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt @default(now())
 }
 
 model Order {
-  id               String           @id @default(uuid())
-  public_id        String           @unique @default(cuid())
-  store_id         String
-  store            Store            @relation(fields: [store_id], references: [id])
-  created_at       DateTime         @default(now())
-  updated_at       DateTime         @updatedAt
-  direct_client_id String?
+  id                       String                @id @default(uuid())
+  public_id                String                @unique @default(cuid())
+  store_id                 String
+  store                    Store                 @relation(fields: [store_id], references: [id])
+  created_at               DateTime              @default(now())
+  updated_at               DateTime              @updatedAt
+  direct_client_id         String?
   livestream_collection_id String?
-  livestream_collection LivestreamCollection? @relation(fields: [livestream_collection_id], references: [id])
-  direct_client    DirectClient?    @relation(fields: [direct_client_id], references: [id])
-  stock_items      OrderStockItem[]
-  status           OrderStatus
+  livestream_collection    LivestreamCollection? @relation(fields: [livestream_collection_id], references: [id])
+  direct_client            DirectClient?         @relation(fields: [direct_client_id], references: [id])
+  stock_items              OrderStockItem[]
+  status                   OrderStatus
 }
 
 model Coupon {

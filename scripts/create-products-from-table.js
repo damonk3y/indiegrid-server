@@ -85,7 +85,7 @@ delete products[""];
             internal_reference_id: value.description,
             name: value.description,
             selling_price: +value.price,
-            store_id: "f77b063d-5715-4827-b414-f01ef8daf02c"
+            store_id: "4d83cb25-dc16-467a-83f0-7ba2a18eacdc"
           }
         });
         for (let i = 0; i < value.quantity; i++) {

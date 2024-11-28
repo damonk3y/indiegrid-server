@@ -81,7 +81,7 @@ delete clientProducts["undefined"];
       directClient = await prisma.directClient.create({
         data: {
           name: key,
-          store_id: "f77b063d-5715-4827-b414-f01ef8daf02c",
+          store_id: "4d83cb25-dc16-467a-83f0-7ba2a18eacdc",
           handle: key,
           facebook_url: encodeURIComponent(
             `https://www.facebook.com/${key}`
@@ -95,8 +95,8 @@ delete clientProducts["undefined"];
     const order = await prisma.order.create({
       data: {
         direct_client_id: directClient.id,
-        status: "PENDING",
-        store_id: "f77b063d-5715-4827-b414-f01ef8daf02c"
+        status: "CLIENT_AWAITNG_PAYMENT_DETAILS",
+        store_id: "4d83cb25-dc16-467a-83f0-7ba2a18eacdc"
       }
     });
     const stockItems = [];
@@ -116,7 +116,7 @@ delete clientProducts["undefined"];
       if (stockItem) {
         await prisma.stockItem.update({
           where: { id: stockItem.id },
-          data: { status: "CLIENT_AWAITING_PAYMENT_DETAILS" }
+          data: { status: "AVAILABLE" }
         });
         await prisma.orderStockItem.create({
           data: {

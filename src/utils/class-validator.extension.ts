@@ -2,7 +2,6 @@ import {
   registerDecorator,
   ValidationOptions
 } from "class-validator";
-import logger from "./logger";
 
 interface IsFileOptions {
   mime: ("image/jpg" | "image/png" | "image/jpeg")[];
@@ -12,7 +11,7 @@ export function IsFile(
   options: IsFileOptions,
   validationOptions?: ValidationOptions
 ) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     return registerDecorator({
       name: "isFile",
       target: object.constructor,
@@ -20,10 +19,15 @@ export function IsFile(
       constraints: [],
       options: validationOptions,
       validator: {
-        validate(value: any) {
+        validate(value: { mimetype: string }) {
           if (
             value?.mimetype &&
-            (options?.mime ?? []).includes(value?.mimetype)
+            (options?.mime ?? []).includes(
+              value?.mimetype as
+                | "image/jpg"
+                | "image/png"
+                | "image/jpeg"
+            )
           ) {
             return true;
           }

@@ -206,7 +206,7 @@ const clients = [
         instagram_url: encodeURI(
           `https://www.instagram.com/${client}`
         ),
-        store_id: "f77b063d-5715-4827-b414-f01ef8daf02c"
+        store_id: "4d83cb25-dc16-467a-83f0-7ba2a18eacdc"
       }
     });
   }

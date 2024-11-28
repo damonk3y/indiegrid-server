@@ -157,7 +157,8 @@ livestreamsController.delete(
 
       if (!storeId || !collectionId || !stockProductId) {
         res.status(400).json({
-          message: "store_id, collection_id and stock_product_id are required"
+          message:
+            "store_id, collection_id and stock_product_id are required"
         });
         return;
       }
@@ -167,11 +168,12 @@ livestreamsController.delete(
         "[LivestreamsController] Removing product from livestream collection"
       );
 
-      const updatedCollection = await livestreamsService.removeProductFromCollection(
-        collectionId,
-        stockProductId,
-        storeId
-      );
+      const updatedCollection =
+        await livestreamsService.removeProductFromCollection(
+          collectionId,
+          stockProductId,
+          storeId
+        );
 
       logger.info(
         { updatedCollection },
@@ -180,10 +182,13 @@ livestreamsController.delete(
 
       res.status(200).json(updatedCollection);
     } catch (error) {
-      logger.error("Error removing product from livestream collection");
+      logger.error(
+        "Error removing product from livestream collection"
+      );
       logger.error(error);
       res.status(500).json({
-        message: "Something went wrong while removing the product from the collection"
+        message:
+          "Something went wrong while removing the product from the collection"
       });
     }
   }
