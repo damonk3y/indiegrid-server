@@ -6,5 +6,5 @@ RUN yarn install
 COPY . .
 RUN npx prisma generate
 RUN yarn build
-EXPOSE 3000
+EXPOSE 8080
 CMD ["node", "dist/src/main.js"]
