@@ -88,17 +88,29 @@ export const createStockProductValidator = async (
       res.status(400).send({ message: "Body malformed" });
       return;
     }
+
+    const cleanBody: Record<string, string | null> = Object.fromEntries(
+      Object.entries(req.body).map(([key, value]) => {
+        if (value === '') return [key, null];
+        return [key, String(value)];
+      })
+    );
+
     const stockProduct = new CreateStockProductDto();
-    const productLines = JSON.parse(req.body.product_lines);
+    const productLines = JSON.parse(cleanBody.product_lines || '[]');
     Object.assign(
       stockProduct,
       plainToInstance(CreateStockProductDto, {
-        ...req.body,
+        ...cleanBody,
         product_lines: productLines,
-        selling_price: parseFloat(req.body.selling_price),
-        weight_in_kgs: parseFloat(req.body.weight_in_kgs),
-        cost_price: parseFloat(req.body.cost_price)
-      })
+        selling_price: cleanBody.selling_price ? parseFloat(cleanBody.selling_price) : null,
+        weight_in_kgs: cleanBody.weight_in_kgs ? parseFloat(cleanBody.weight_in_kgs) : null,
+        cost_price: cleanBody.cost_price ? parseFloat(cleanBody.cost_price) : null,
+        armpit_to_armpit: cleanBody.armpit_to_armpit ? parseFloat(cleanBody.armpit_to_armpit) : null,
+        chest_around: cleanBody.chest_around ? parseFloat(cleanBody.chest_around) : null,
+        waist_around: cleanBody.waist_around ? parseFloat(cleanBody.waist_around) : null,
+        height: cleanBody.height ? parseFloat(cleanBody.height) : null
+      } as CreateStockProductDto)
     );
     await validateOrReject(stockProduct);
     req.body = stockProduct;
