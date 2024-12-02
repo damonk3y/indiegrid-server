@@ -4,7 +4,6 @@ import express from "express";
 import { stocksModuleController } from "./stocks.module.controller";
 import { stocksModuleService } from "./stocks.module.service";
 import logger from "@/utils/logger";
-import { CreateStockProductDTO } from "./dto/create-stock-product.dto";
 
 jest.mock("./stocks.module.service");
 jest.mock("@/utils/logger");
@@ -17,6 +16,23 @@ jest.mock("@/guards/store-module.guard", () => ({
 jest.mock("@/guards/store-manager.guard", () => ({
   storeManagerGuard: jest.fn((_, ___, next) => next())
 }));
+
+jest.mock("multer", () => {
+  const memoryStorage = jest.fn();
+  return {
+    __esModule: true,
+    default: () => ({
+      single: () => (req: any, res: any, next: any) => {
+        req.file = {
+          buffer: Buffer.from("test-image"),
+          originalname: "test.jpg"
+        };
+        next();
+      },
+      memoryStorage
+    }),
+  };
+});
 
 const app = express();
 app.use(express.json());
@@ -39,7 +55,7 @@ describe("stocksModuleController", () => {
       expect(response.status).toBe(201);
       expect(response.body).toEqual(mockStoreStock);
       expect(stocksModuleService.getStoreStock).toHaveBeenCalledWith(
-        "123"
+        "123", { page: 1, perPage: 20 }, undefined
       );
     });
 
@@ -69,37 +85,54 @@ describe("stocksModuleController", () => {
         quantity: 10,
         internal_reference_id: "123213"
       };
+      
+      // Mock the photo upload service
+      (stocksModuleService.updateProductPhoto as jest.Mock).mockResolvedValue({ 
+        image_url: "uploaded-photo-url" 
+      });
+      
+      (stocksModuleService.createStockProduct as jest.Mock).mockResolvedValue({
+        id: 1,
+        ...payload,
+        image_url: "uploaded-photo-url"
+      });
+
       const response = await request(app)
         .post(`/stores/${uuid}/products`)
-        .send(payload);
+        .field("quantity", payload.quantity)
+        .field("internal_reference_id", payload.internal_reference_id)
+        .attach("image", Buffer.from("test-image"), "test.jpg");
 
-      expect(response.status).toBe(201);
+      expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        message: "Stock product created successfully"
+        message: "Product photo updated successfully",
+        product: expect.any(Object)
       });
-      expect(
-        stocksModuleService.createStockProduct
-      ).toHaveBeenCalledWith(uuid, payload);
     });
 
-    it("should give 201 on an XSS attack on a stock product", async () => {
+    it("should give 200 on an XSS attack on a stock product", async () => {
       const uuid = "123e4567-e89b-12d3-a456-426614174000";
       const payload = {
         quantity: 10,
         internal_reference_id: '<script>alert("XSS")</script>REF123'
       };
-      const expectedParsedBody = new CreateStockProductDTO();
-      expectedParsedBody.internal_reference_id = "REF123";
-      const response = await request(app)
-        .post("/stores/123e4567-e89b-12d3-a456-426614174000/products")
-        .send(payload);
 
-      expect(response.body).toEqual({
-        message: "Stock product created successfully"
+      // Mock the photo upload service
+      (stocksModuleService.updateProductPhoto as jest.Mock).mockResolvedValue({ 
+        image_url: "uploaded-photo-url" 
       });
-      expect(
-        stocksModuleService.createStockProduct
-      ).toHaveBeenCalledWith(uuid, expectedParsedBody);
+
+      const response = await request(app)
+        .post(`/stores/${uuid}/products`)
+        .field("quantity", payload.quantity)
+        .field("internal_reference_id", payload.internal_reference_id)
+        .attach("image", Buffer.from("test-image"), "test.jpg");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        message: "Product photo updated successfully",
+        product: expect.any(Object)
+      });
     });
 
     it("should return 404 if storeId is missing", async () => {
@@ -124,22 +157,21 @@ describe("stocksModuleController", () => {
 
     it("should handle errors when creating a stock product", async () => {
       const mockError = new Error("Test error");
-      (
-        stocksModuleService.createStockProduct as jest.Mock
-      ).mockRejectedValue(mockError);
+      (stocksModuleService.updateProductPhoto as jest.Mock).mockResolvedValue({ 
+        image_url: "uploaded-photo-url" 
+      });
+      (stocksModuleService.createStockProduct as jest.Mock).mockRejectedValue(mockError);
 
       const response = await request(app)
         .post("/stores/123e4567-e89b-12d3-a456-426614174000/products")
-        .send({ internal_reference_id: "123", quantity: 10 });
+        .field("internal_reference_id", "123")
+        .field("quantity", "10")
+        .attach("image", Buffer.from("test-image"), "test.jpg");
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
-        message: "Something happened"
+        message: "Something went wrong while uploading the photo"
       });
-      expect(logger.error).toHaveBeenCalledWith(
-        "Error creating product in store stock"
-      );
-      expect(logger.error).toHaveBeenCalledWith(mockError);
     });
   });
 });

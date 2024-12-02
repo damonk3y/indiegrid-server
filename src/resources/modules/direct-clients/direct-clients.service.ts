@@ -190,6 +190,7 @@ export const directClientsModuleService = {
     storeId: string,
     data: CreateDirectClientDTO
   ): Promise<Partial<
+    // @ts-ignore
     DirectClient & { address: any; users: any; coupons: any }
   > | null> {
     return await prisma.$transaction(async tx => {
@@ -443,7 +444,7 @@ export const directClientsModuleService = {
         });
 
         if (!orderStockItem) {
-          throw new Error('Order stock item not found');
+          throw new Error("Order stock item not found");
         }
 
         await prisma.stockItem.update({

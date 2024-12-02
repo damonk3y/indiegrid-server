@@ -290,8 +290,7 @@ directClientsModuleController.delete(
   cancelProductReservationValidator,
   async (req, res) => {
     try {
-      const { storeId, clientId, productId } =
-        req.params;
+      const { storeId, clientId, productId } = req.params;
       logger.info(
         { storeId, clientId, productId },
         "[DirectClientsController] Canceling product reservation"

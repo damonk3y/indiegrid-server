@@ -7,8 +7,10 @@ jest.mock("@/clients/prisma", () => ({
     directClient: {
       findMany: jest.fn(),
       findFirst: jest.fn(),
-      create: jest.fn()
-    }
+      create: jest.fn(),
+      findUnique: jest.fn()
+    },
+    $transaction: jest.fn(callback => callback(prisma))
   }
 }));
 
@@ -52,8 +54,16 @@ describe("directClientsModuleService", () => {
         include: {
           addresses: true,
           coupons: true,
+          orders: true,
           users: true
-        }
+        },
+        orderBy: {
+          orders: {
+            _count: "desc"
+          }
+        },
+        skip: 0,
+        take: 20
       });
       expect(result).toEqual(mockClients);
     });
@@ -121,6 +131,10 @@ describe("directClientsModuleService", () => {
       (prisma.directClient.create as jest.Mock).mockResolvedValue(
         mockCreatedClient
       );
+      (prisma.directClient.findUnique as jest.Mock).mockResolvedValue(
+        mockCreatedClient
+      );
+      (prisma.$transaction as jest.Mock).mockImplementation(callback => callback(prisma));
 
       const result =
         await directClientsModuleService.createDirectClient(

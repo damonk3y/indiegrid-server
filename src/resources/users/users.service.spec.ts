@@ -130,7 +130,11 @@ describe("UsersService", () => {
       );
 
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { email: mockUser.email, is_banned: false }
+        where: {
+          email: mockUser.email,
+          is_banned: false,
+          is_email_verified: true
+        }
       });
       expect(prisma.user.update).not.toHaveBeenCalled();
       expect(jwt.sign).not.toHaveBeenCalled();

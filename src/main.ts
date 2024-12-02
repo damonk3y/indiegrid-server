@@ -23,7 +23,7 @@ const corsOptions = {
   exposedHeaders: ["set-cookie"]
 };
 
-logger.info('Configuring server middleware and CORS settings');
+logger.info("Configuring server middleware and CORS settings");
 
 app.use(cookieParser());
 app.use(cors(corsOptions));
@@ -32,12 +32,12 @@ app.use("/", healthController);
 app.use("/users", usersController);
 app.use("/modules", modulesController);
 
-logger.info('Middleware and routes configured successfully');
+logger.info("Middleware and routes configured successfully");
 
 const port = process.env.PORT || 3000;
 
 if (process.env.NODE_ENV !== "production") {
-  logger.info('Starting server in development mode with HTTPS');
+  logger.info("Starting server in development mode with HTTPS");
   const httpsOptions = {
     key: fs.readFileSync(
       "/Users/helloiambguedes/Desktop/companies/fashion-marketplace/monolith/certs/localhost.key"
@@ -52,7 +52,7 @@ if (process.env.NODE_ENV !== "production") {
     logger.info(`Environment: ${process.env.NODE_ENV}`);
   });
 } else {
-  logger.info('Starting server in production mode');
+  logger.info("Starting server in production mode");
   app.listen(port, () => {
     logger.info(`HTTP Server is running on port ${port}`);
     logger.info(`Environment: ${process.env.NODE_ENV}`);
@@ -60,11 +60,15 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 process.on("SIGINT", () => {
-  logger.info('Received SIGINT signal. Shutting down server gracefully...');
+  logger.info(
+    "Received SIGINT signal. Shutting down server gracefully..."
+  );
   process.exit(0);
 });
 
 process.on("SIGTERM", () => {
-  logger.info('Received SIGTERM signal. Shutting down server gracefully...');
+  logger.info(
+    "Received SIGTERM signal. Shutting down server gracefully..."
+  );
   process.exit(0);
 });

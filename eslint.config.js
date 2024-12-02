@@ -19,7 +19,9 @@ export default [
     },
     rules: {
       ...tsPlugin.configs["recommended"].rules,
-      "no-undef": "off"
+      "no-undef": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/no-explicit-any": "warn"
     }
   }
 ];

@@ -67,7 +67,7 @@ const validationEntries = Object.entries(validations);
       continue;
     await prisma.directClient.create({
       data: {
-        store_id: "4d83cb25-dc16-467a-83f0-7ba2a18eacdc",
+        store_id: "bc5d8ba8-c33f-4a89-af73-2844b3321e97",
         name: record.name,
         phone: record.phone,
         facebook_url: encodeURI(

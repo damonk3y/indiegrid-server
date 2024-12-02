@@ -4,17 +4,17 @@ import { Request, Response, NextFunction } from "express";
 import { plainToInstance } from "class-transformer";
 import logger from "@/utils/logger";
 import {
-  CreateStockProductDTO,
+  CreateStockProductDto,
   createStockProductValidator
 } from "./create-stock-product.dto";
 
 jest.mock("@/utils/logger");
 
-describe("CreateStockProductDTO", () => {
-  let dto: CreateStockProductDTO;
+describe("CreateStockProductDto", () => {
+  let dto: CreateStockProductDto;
 
   beforeEach(() => {
-    dto = new CreateStockProductDTO();
+    dto = new CreateStockProductDto();
   });
 
   it("should validate a valid DTO", async () => {
@@ -41,7 +41,7 @@ describe("CreateStockProductDTO", () => {
   it("should sanitize HTML in internal_reference_id", () => {
     dto.internal_reference_id = '<script>alert("XSS")</script>REF123';
     expect(
-      plainToInstance(CreateStockProductDTO, dto)
+      plainToInstance(CreateStockProductDto, dto)
         .internal_reference_id
     ).toBe("REF123");
   });

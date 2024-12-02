@@ -12,7 +12,7 @@ import sanitizeHtml from "sanitize-html";
 import { plainToInstance, Transform, Type } from "class-transformer";
 import logger from "@/utils/logger";
 
-class StockProductSize {
+export class StockProductSize {
   @IsString()
   size!: string;
 
@@ -89,26 +89,39 @@ export const createStockProductValidator = async (
       return;
     }
 
-    const cleanBody: Record<string, string | null> = Object.fromEntries(
-      Object.entries(req.body).map(([key, value]) => {
-        if (value === '') return [key, null];
-        return [key, String(value)];
-      })
-    );
+    const cleanBody: Record<string, string | null> =
+      Object.fromEntries(
+        Object.entries(req.body).map(([key, value]) => {
+          if (value === "") return [key, null];
+          return [key, String(value)];
+        })
+      );
 
     const stockProduct = new CreateStockProductDto();
-    const productLines = JSON.parse(cleanBody.product_lines || '[]');
+    const productLines = JSON.parse(cleanBody.product_lines || "[]");
     Object.assign(
       stockProduct,
       plainToInstance(CreateStockProductDto, {
         ...cleanBody,
         product_lines: productLines,
-        selling_price: cleanBody.selling_price ? parseFloat(cleanBody.selling_price) : null,
-        weight_in_kgs: cleanBody.weight_in_kgs ? parseFloat(cleanBody.weight_in_kgs) : null,
-        cost_price: cleanBody.cost_price ? parseFloat(cleanBody.cost_price) : null,
-        armpit_to_armpit: cleanBody.armpit_to_armpit ? parseFloat(cleanBody.armpit_to_armpit) : null,
-        chest_around: cleanBody.chest_around ? parseFloat(cleanBody.chest_around) : null,
-        waist_around: cleanBody.waist_around ? parseFloat(cleanBody.waist_around) : null,
+        selling_price: cleanBody.selling_price
+          ? parseFloat(cleanBody.selling_price)
+          : null,
+        weight_in_kgs: cleanBody.weight_in_kgs
+          ? parseFloat(cleanBody.weight_in_kgs)
+          : null,
+        cost_price: cleanBody.cost_price
+          ? parseFloat(cleanBody.cost_price)
+          : null,
+        armpit_to_armpit: cleanBody.armpit_to_armpit
+          ? parseFloat(cleanBody.armpit_to_armpit)
+          : null,
+        chest_around: cleanBody.chest_around
+          ? parseFloat(cleanBody.chest_around)
+          : null,
+        waist_around: cleanBody.waist_around
+          ? parseFloat(cleanBody.waist_around)
+          : null,
         height: cleanBody.height ? parseFloat(cleanBody.height) : null
       } as CreateStockProductDto)
     );
