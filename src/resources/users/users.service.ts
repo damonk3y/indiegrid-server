@@ -44,9 +44,9 @@ const signInUser = async (user: SignInUserDTO) => {
       where: {
         email: user.email,
         is_banned: false,
-        is_email_verified: true
       }
     });
+    console.log("dbUser", dbUser);
     if (!dbUser) {
       throw new Error("User not found");
     }
@@ -77,7 +77,7 @@ const signInUser = async (user: SignInUserDTO) => {
     response as JWTTokenPayload,
     process.env.JWT_SECRET!,
     {
-      expiresIn: "1h"
+      expiresIn: "12h"
     }
   );
   const refreshToken = jwt.sign(

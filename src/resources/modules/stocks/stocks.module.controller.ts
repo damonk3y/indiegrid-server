@@ -11,9 +11,6 @@ import { Pagy } from "@/utils/pagy";
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
 });
 export const stocksModuleController = Router();
 
@@ -84,15 +81,15 @@ stocksModuleController.post(
         logger.error("Store ID is not defined");
         return;
       }
+      let image_url = null;
       if (!req.file) {
-        res.status(400).json({ message: "No photo uploaded" });
         logger.error("No photo uploaded");
-        return;
-      }
-      const { image_url } =
-        await stocksModuleService.updateProductPhoto(req.file);
-      if (!image_url) {
-        throw "Error saving image";
+      } else {
+        const { image_url } =
+          await stocksModuleService.updateProductPhoto(req.file);
+        if (!image_url) {
+          throw "Error saving image";
+        }
       }
       logger.info("Creating stock product");
       const product = await stocksModuleService.createStockProduct(

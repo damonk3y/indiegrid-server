@@ -1,3 +1,5 @@
+
+import sharp from 'sharp';
 import { prisma } from "@/clients/prisma";
 import { StockStatus } from "@prisma/client";
 import { minioClient } from "@/clients/minio";
@@ -100,7 +102,7 @@ export const getStoreStockProduct = async (
 export const createStockProduct = async (
   storeId: string,
   stockProduct: CreateStockProductDto,
-  imageUrl: string
+  imageUrl: string | null
 ) => {
   await prisma.stockProduct.create({
     data: {
@@ -139,6 +141,13 @@ export const updateProductPhoto = async (
         "No image file provided or invalid image buffer"
       );
     }
+
+    // Optimize the image using sharp
+    const optimizedImageBuffer = await sharp(image.buffer)
+      .resize(800) // Resize to a width of 800px, maintaining aspect ratio
+      .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+      .toBuffer();
+
     const bucketName =
       process.env.MINIO_BUCKET_NAME || "stock-products";
     const objectName = `${Date.now()}-${image.originalname}`;
@@ -149,8 +158,8 @@ export const updateProductPhoto = async (
     await minioClient.putObject(
       bucketName,
       objectName,
-      Buffer.from(image.buffer),
-      image.size
+      optimizedImageBuffer,
+      optimizedImageBuffer.length
     );
     const imageUrl = await minioClient.presignedGetObject(
       bucketName,

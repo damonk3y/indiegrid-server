@@ -12,14 +12,17 @@ import sanitizeHtml from "sanitize-html";
 import { plainToInstance, Transform, Type } from "class-transformer";
 import logger from "@/utils/logger";
 
-export class StockProductSize {
+export class StockProductItemDetails {
   @IsString()
-  size!: string;
+  @IsOptional()
+  size?: string;
 
   @IsString()
+  @IsOptional()
   color!: string;
 
   @IsNumber()
+  @IsOptional()
   quantity!: number;
 }
 
@@ -50,10 +53,6 @@ export class CreateStockProductDto {
   internal_reference_id!: string;
 
   @IsOptional()
-  @IsString()
-  image_url?: string;
-
-  @IsOptional()
   @IsNumber()
   armpit_to_armpit?: number;
 
@@ -72,7 +71,7 @@ export class CreateStockProductDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => StockProductSize)
+  @Type(() => StockProductItemDetails)
   product_lines!: { size: string; color: string; quantity: number }[];
 }
 
