@@ -66,7 +66,15 @@ export const ordersService = {
       include: {
         _count: {
           select: {
-            stock_items: true
+            stock_items: {
+              where: {
+                stock_item: {
+                  stock_product: {
+                    id: productId
+                  }
+                }
+              }
+            }
           }
         },
         direct_client: true,
