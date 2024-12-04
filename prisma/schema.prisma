@@ -65,6 +65,7 @@ model User {
 
 model DirectClient {
   id            String    @id @default(uuid())
+  client_number Int       @default(autoincrement()) @db.SmallInt
   store_id      String
   emoji_seq     String?
   store         Store     @relation(fields: [store_id], references: [id])
@@ -72,6 +73,8 @@ model DirectClient {
   name          String
   facebook_url  String?
   instagram_url String?
+  chat_url      String?
+  thumbnail_url String?
   handle        String?
   email         String?
   phone         String?

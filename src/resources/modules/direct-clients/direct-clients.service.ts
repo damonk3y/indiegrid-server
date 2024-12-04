@@ -100,12 +100,6 @@ export const directClientsModuleService = {
                   }
                 },
                 {
-                  handle: {
-                    contains: searchQuery,
-                    mode: "insensitive"
-                  }
-                },
-                {
                   addresses: {
                     some: {
                       OR: [
