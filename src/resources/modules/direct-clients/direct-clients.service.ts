@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import { prisma } from "@/clients/prisma";
 import {
   Address,
@@ -10,6 +11,8 @@ import {
 import { CreateDirectClientDTO } from "./dto/create-direct-client.dto";
 import { PatchDirectClientDTO } from "./dto/patch-direct-client.dto";
 import { Pagy } from "@/utils/pagy";
+import { minioClient } from "@/clients/minio";
+import logger from "@/utils/logger";
 
 const emojis = [
   "😀",
@@ -452,5 +455,48 @@ export const directClientsModuleService = {
       }
     });
     return "Reservation canceled successfully";
+  },
+
+  async updateDirectClientThumbnail(
+    clientId: string,
+    storeId: string,
+    image: Express.Multer.File
+  ) {
+    try {
+      if (!image || !image.buffer) {
+        throw new Error("No image file provided or invalid image buffer");
+      }
+      const optimizedImageBuffer = await sharp(image.buffer)
+        .resize(800)
+        .jpeg({ quality: 80 })
+        .toBuffer();
+
+      const bucketName = process.env.MINIO_BUCKET_NAME || "client-thumbnails";
+      const objectName = `${Date.now()}-${image.originalname}`;
+      const bucketExists = await minioClient.bucketExists(bucketName);
+      if (!bucketExists) {
+        await minioClient.makeBucket(bucketName);
+      }
+      await minioClient.putObject(
+        bucketName,
+        objectName,
+        optimizedImageBuffer,
+        optimizedImageBuffer.length
+      );
+      const thumbnailUrl = await minioClient.presignedGetObject(
+        bucketName,
+        objectName
+      );
+      const newThumbnail = await prisma.directClient.update({
+        where: { id: clientId, store_id: storeId },
+        data: {
+          thumbnail_url: thumbnailUrl
+        }
+      });
+      return newThumbnail;
+    } catch (error) {
+      logger.error("Error updating client thumbnail:", error);
+      throw error;
+    }
   }
 };

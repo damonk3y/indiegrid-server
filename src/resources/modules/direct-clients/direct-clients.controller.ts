@@ -8,6 +8,12 @@ import { patchDirectClientValidator } from "./dto/patch-direct-client.dto";
 import { Pagy } from "@/utils/pagy";
 import { reserveProductValidator } from "./dto/reserve-product.dto";
 import { cancelProductReservationValidator } from "./dto/cancel-product-reservation.dto";
+import multer from "multer";
+import { updateThumbnailValidator } from "../stocks/dto/update-thumbnail.dto";
+
+const upload = multer({
+  storage: multer.memoryStorage()
+});
 
 export const directClientsModuleController = Router();
 
@@ -317,6 +323,52 @@ directClientsModuleController.delete(
       res.status(500).json({
         message:
           "Something went wrong while canceling the reservation"
+      });
+    }
+  }
+);
+
+directClientsModuleController.patch(
+  "/stores/:storeId/:clientId/thumbnail",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  upload.single("file"),
+  updateThumbnailValidator,
+  async (req, res): Promise<void> => {
+    try {
+      const { storeId, clientId } = req.params;
+      
+      if (!req.file) {
+        logger.error("No thumbnail uploaded");
+        res.status(400).json({
+          message: "No thumbnail file provided"
+        });
+        return;
+      }
+
+      logger.info(
+        { storeId, clientId },
+        "[DirectClientsController] Updating direct client thumbnail"
+      );
+
+      const updatedClient = await directClientsModuleService.updateDirectClientThumbnail(
+        clientId,
+        storeId,
+        req.file
+      );
+
+      logger.info(
+        { updatedClient },
+        "[DirectClientsController] Direct client thumbnail updated successfully"
+      );
+
+      res.status(200).json(updatedClient);
+    } catch (error) {
+      logger.error("Error updating direct client thumbnail");
+      logger.error(error);
+      res.status(500).json({
+        message: "Something went wrong while updating the direct client thumbnail"
       });
     }
   }

@@ -46,7 +46,6 @@ const signInUser = async (user: SignInUserDTO) => {
         is_banned: false,
       }
     });
-    console.log("dbUser", dbUser);
     if (!dbUser) {
       throw new Error("User not found");
     }
