@@ -11,14 +11,17 @@ export const updateThumbnailValidator = async (
 
     if (!req.file) {
       logger.warn("Thumbnail file is missing");
-      res.status(400).send({ message: "No thumbnail file provided 123" });
+      res
+        .status(400)
+        .send({ message: "No thumbnail file provided 123" });
       return;
     }
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedMimeTypes.includes(req.file.mimetype)) {
       logger.warn(`Invalid file type: ${req.file.mimetype}`);
-      res.status(400).send({ 
-        message: "Invalid file type. Only JPEG, JPG and PNG files are allowed" 
+      res.status(400).send({
+        message:
+          "Invalid file type. Only JPEG, JPG and PNG files are allowed"
       });
       return;
     }
@@ -26,8 +29,8 @@ export const updateThumbnailValidator = async (
     const maxSize = 5 * 1024 * 1024;
     if (req.file.size > maxSize) {
       logger.warn(`File too large: ${req.file.size} bytes`);
-      res.status(400).send({ 
-        message: "File too large. Maximum size is 5MB" 
+      res.status(400).send({
+        message: "File too large. Maximum size is 5MB"
       });
       return;
     }

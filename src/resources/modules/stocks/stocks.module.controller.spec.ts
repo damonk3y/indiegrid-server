@@ -30,7 +30,7 @@ jest.mock("multer", () => {
         next();
       },
       memoryStorage
-    }),
+    })
   };
 });
 
@@ -55,7 +55,9 @@ describe("stocksModuleController", () => {
       expect(response.status).toBe(201);
       expect(response.body).toEqual(mockStoreStock);
       expect(stocksModuleService.getStoreStock).toHaveBeenCalledWith(
-        "123", { page: 1, perPage: 20 }, undefined
+        "123",
+        { page: 1, perPage: 20 },
+        undefined
       );
     });
 
@@ -85,13 +87,17 @@ describe("stocksModuleController", () => {
         quantity: 10,
         internal_reference_id: "123213"
       };
-      
+
       // Mock the photo upload service
-      (stocksModuleService.updateProductPhoto as jest.Mock).mockResolvedValue({ 
-        image_url: "uploaded-photo-url" 
+      (
+        stocksModuleService.updateProductPhoto as jest.Mock
+      ).mockResolvedValue({
+        image_url: "uploaded-photo-url"
       });
-      
-      (stocksModuleService.createStockProduct as jest.Mock).mockResolvedValue({
+
+      (
+        stocksModuleService.createStockProduct as jest.Mock
+      ).mockResolvedValue({
         id: 1,
         ...payload,
         image_url: "uploaded-photo-url"
@@ -118,8 +124,10 @@ describe("stocksModuleController", () => {
       };
 
       // Mock the photo upload service
-      (stocksModuleService.updateProductPhoto as jest.Mock).mockResolvedValue({ 
-        image_url: "uploaded-photo-url" 
+      (
+        stocksModuleService.updateProductPhoto as jest.Mock
+      ).mockResolvedValue({
+        image_url: "uploaded-photo-url"
       });
 
       const response = await request(app)
@@ -157,10 +165,14 @@ describe("stocksModuleController", () => {
 
     it("should handle errors when creating a stock product", async () => {
       const mockError = new Error("Test error");
-      (stocksModuleService.updateProductPhoto as jest.Mock).mockResolvedValue({ 
-        image_url: "uploaded-photo-url" 
+      (
+        stocksModuleService.updateProductPhoto as jest.Mock
+      ).mockResolvedValue({
+        image_url: "uploaded-photo-url"
       });
-      (stocksModuleService.createStockProduct as jest.Mock).mockRejectedValue(mockError);
+      (
+        stocksModuleService.createStockProduct as jest.Mock
+      ).mockRejectedValue(mockError);
 
       const response = await request(app)
         .post("/stores/123e4567-e89b-12d3-a456-426614174000/products")

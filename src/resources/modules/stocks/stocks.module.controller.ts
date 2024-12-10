@@ -10,7 +10,7 @@ import { createStockProductValidator } from "./dto/create-stock-product.dto";
 import { Pagy } from "@/utils/pagy";
 
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: multer.memoryStorage()
 });
 export const stocksModuleController = Router();
 

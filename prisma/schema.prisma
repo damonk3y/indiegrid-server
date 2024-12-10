@@ -25,10 +25,10 @@ enum StockStatus {
 }
 
 enum OrderStatus {
-  OPEN
-  CLIENT_AWAITNG_PAYMENT_DETAILS
+  CLIENT_AWAITING_PAYMENT_DETAILS
   AWAITING_PAYMENT
   PENDING
+  STORED
   SHIPPED
   DELIVERED
   CANCELLED
@@ -240,6 +240,7 @@ model StockProduct {
   cost_price             Float?
   selling_price          Float?
   stock_items            StockItem[]
+  is_ready_to_ship       Boolean                            @default(false)
   store_id               String
   store                  Store                              @relation(fields: [store_id], references: [id])
   images                 StockProductImages[]

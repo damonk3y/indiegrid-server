@@ -338,7 +338,7 @@ directClientsModuleController.patch(
   async (req, res): Promise<void> => {
     try {
       const { storeId, clientId } = req.params;
-      
+
       if (!req.file) {
         logger.error("No thumbnail uploaded");
         res.status(400).json({
@@ -352,11 +352,12 @@ directClientsModuleController.patch(
         "[DirectClientsController] Updating direct client thumbnail"
       );
 
-      const updatedClient = await directClientsModuleService.updateDirectClientThumbnail(
-        clientId,
-        storeId,
-        req.file
-      );
+      const updatedClient =
+        await directClientsModuleService.updateDirectClientThumbnail(
+          clientId,
+          storeId,
+          req.file
+        );
 
       logger.info(
         { updatedClient },
@@ -368,7 +369,8 @@ directClientsModuleController.patch(
       logger.error("Error updating direct client thumbnail");
       logger.error(error);
       res.status(500).json({
-        message: "Something went wrong while updating the direct client thumbnail"
+        message:
+          "Something went wrong while updating the direct client thumbnail"
       });
     }
   }

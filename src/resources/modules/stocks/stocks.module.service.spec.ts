@@ -3,7 +3,10 @@ import {
   createStockProduct,
   getStoreStock
 } from "./stocks.module.service";
-import { CreateStockProductDto, StockProductSize } from "./dto/create-stock-product.dto";
+import {
+  CreateStockProductDto,
+  StockProductSize
+} from "./dto/create-stock-product.dto";
 import { StockStatus } from "@prisma/client";
 
 jest.mock("@/clients/prisma", () => ({
@@ -87,10 +90,14 @@ describe("stocksModuleService", () => {
         mockStockProducts
       );
 
-      const result = await getStoreStock(storeId, {
-        page: 1,
-        perPage: 10
-      }, searchQuery);
+      const result = await getStoreStock(
+        storeId,
+        {
+          page: 1,
+          perPage: 10
+        },
+        searchQuery
+      );
 
       expect(prisma.stockProduct.findMany).toHaveBeenCalledWith({
         where: {
@@ -153,7 +160,9 @@ describe("stocksModuleService", () => {
     });
 
     it("should return an empty array if no stock products are found", async () => {
-      (prisma.stockProduct.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.stockProduct.findMany as jest.Mock).mockResolvedValue(
+        []
+      );
 
       const result = await getStoreStock(storeId, {
         page: 1,
@@ -161,9 +170,9 @@ describe("stocksModuleService", () => {
       });
 
       expect(prisma.stockProduct.findMany).toHaveBeenCalledWith({
-        where: { 
+        where: {
           store_id: storeId,
-          OR: undefined 
+          OR: undefined
         },
         skip: 0,
         take: 10,
@@ -185,9 +194,9 @@ describe("stocksModuleService", () => {
         getStoreStock(storeId, { page: 1, perPage: 10 })
       ).rejects.toThrow("Database error");
       expect(prisma.stockProduct.findMany).toHaveBeenCalledWith({
-        where: { 
+        where: {
           store_id: storeId,
-          OR: undefined 
+          OR: undefined
         },
         skip: 0,
         take: 10,

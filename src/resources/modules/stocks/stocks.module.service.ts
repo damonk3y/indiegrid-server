@@ -1,5 +1,4 @@
-
-import sharp from 'sharp';
+import sharp from "sharp";
 import { prisma } from "@/clients/prisma";
 import { StockStatus } from "@prisma/client";
 import { minioClient } from "@/clients/minio";

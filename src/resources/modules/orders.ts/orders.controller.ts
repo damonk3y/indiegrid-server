@@ -4,8 +4,37 @@ import { sessionGuard } from "@/guards/session.guard";
 import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { ordersService } from "./orders.service";
+import { OrderStatus } from "@prisma/client";
+import { updateOrderStatusValidator } from "./update-order-status.dto";
 
 export const ordersController = Router();
+
+ordersController.get(
+  "/stores/:storeId",
+  express.json(),
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { storeId } = req.params;
+      const { status } = req.query;
+      if (!storeId) {
+        res.status(400).json({ message: "Store ID is required" });
+        return;
+      }
+      const clientOrders = await ordersService.getStoreOrders(
+        storeId,
+        status as OrderStatus
+      );
+      res.status(200).json(clientOrders);
+    } catch (error) {
+      logger.error("Error getting store orders");
+      logger.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+);
 
 ordersController.get(
   "/stores/:storeId/direct-clients/:clientId/orders",
@@ -28,7 +57,7 @@ ordersController.get(
       );
       res.status(200).json(clientOrders);
     } catch (error) {
-      logger.error("Error getting livestream collections");
+      logger.error("Error getting client orders");
       logger.error(error);
       res.status(500).json({ message: "Something went wrong" });
     }
@@ -56,6 +85,36 @@ ordersController.get(
         storeId,
         productId,
         livestream_collection_id as string | undefined
+      );
+      res.status(200).json(productOrders);
+    } catch (error) {
+      logger.error("Error getting product orders");
+      logger.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+);
+
+ordersController.patch(
+  "/stores/:storeId/orders/:orderId",
+  express.json(),
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  updateOrderStatusValidator,
+  async (req, res) => {
+    try {
+      const { storeId, orderId } = req.params;
+
+      if (!storeId) {
+        res
+          .status(400)
+          .json({ message: "Store ID and order ID are required" });
+        return;
+      }
+      const productOrders = await ordersService.updateOrderStatus(
+        orderId,
+        req.body.status
       );
       res.status(200).json(productOrders);
     } catch (error) {

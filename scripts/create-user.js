@@ -15,7 +15,7 @@ import https from "https";
       `Attempting to create user with email: ${userData.email}`
     );
     const response = await axios.post(
-      "https://localhost:3000/users",
+      "https://localhost:8080/users",
       userData,
       {
         httpsAgent: new https.Agent({

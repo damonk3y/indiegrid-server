@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+import sharp from "sharp";
 import { prisma } from "@/clients/prisma";
 import {
   Address,
@@ -390,7 +390,7 @@ export const directClientsModuleService = {
       if (!order) {
         order = await prisma.order.create({
           data: {
-            status: "CLIENT_AWAITNG_PAYMENT_DETAILS",
+            status: OrderStatus.CLIENT_AWAITING_PAYMENT_DETAILS,
             direct_client_id: clientId,
             store_id: storeId,
             livestream_collection_id: livestreamCollectionId
@@ -464,14 +464,17 @@ export const directClientsModuleService = {
   ) {
     try {
       if (!image || !image.buffer) {
-        throw new Error("No image file provided or invalid image buffer");
+        throw new Error(
+          "No image file provided or invalid image buffer"
+        );
       }
       const optimizedImageBuffer = await sharp(image.buffer)
         .resize(800)
         .jpeg({ quality: 80 })
         .toBuffer();
 
-      const bucketName = process.env.MINIO_BUCKET_NAME || "client-thumbnails";
+      const bucketName =
+        process.env.MINIO_BUCKET_NAME || "client-thumbnails";
       const objectName = `${Date.now()}-${image.originalname}`;
       const bucketExists = await minioClient.bucketExists(bucketName);
       if (!bucketExists) {

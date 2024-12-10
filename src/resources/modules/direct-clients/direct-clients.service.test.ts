@@ -134,7 +134,9 @@ describe("directClientsModuleService", () => {
       (prisma.directClient.findUnique as jest.Mock).mockResolvedValue(
         mockCreatedClient
       );
-      (prisma.$transaction as jest.Mock).mockImplementation(callback => callback(prisma));
+      (prisma.$transaction as jest.Mock).mockImplementation(
+        callback => callback(prisma)
+      );
 
       const result =
         await directClientsModuleService.createDirectClient(

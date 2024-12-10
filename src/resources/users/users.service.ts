@@ -43,7 +43,7 @@ const signInUser = async (user: SignInUserDTO) => {
     const dbUser = await tx.user.findUnique({
       where: {
         email: user.email,
-        is_banned: false,
+        is_banned: false
       }
     });
     if (!dbUser) {
@@ -76,7 +76,7 @@ const signInUser = async (user: SignInUserDTO) => {
     response as JWTTokenPayload,
     process.env.JWT_SECRET!,
     {
-      expiresIn: "12h"
+      expiresIn: "180d"
     }
   );
   const refreshToken = jwt.sign(
