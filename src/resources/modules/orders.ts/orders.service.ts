@@ -1,5 +1,5 @@
 import { prisma } from "@/clients/prisma";
-import { Order, OrderStatus } from "@prisma/client";
+import { Order, OrderStatus, StockStatus } from "@prisma/client";
 
 export const ordersService = {
   async getStoreOrders(
@@ -124,9 +124,53 @@ export const ordersService = {
     orderId: string,
     status: OrderStatus
   ): Promise<Order> {
-    return await prisma.order.update({
-      where: { id: orderId },
-      data: { status: status }
+    return await prisma.$transaction(async prisma => {
+      const orderStockItems = await prisma.orderStockItem.findMany({
+        where: { order_id: orderId },
+        select: { stock_item_id: true }
+      });
+      switch (status) {
+        case OrderStatus.STORED: {
+          await prisma.stockItem.updateMany({
+            where: {
+              id: {
+                in: orderStockItems.map(item => item.stock_item_id)
+              }
+            },
+            data: { status: StockStatus.STORED_TO_SHIP_LATER }
+          });
+          return await prisma.order.update({
+            where: { id: orderId },
+            data: { status }
+          });
+        }
+        case OrderStatus.SHIPPED: {
+          await prisma.stockItem.updateMany({
+            where: {
+              id: {
+                in: orderStockItems.map(item => item.stock_item_id)
+              }
+            },
+            data: { status: StockStatus.SENT }
+          });
+          return await prisma.order.update({
+            where: { id: orderId },
+            data: { status }
+          });
+        }
+        case OrderStatus.CANCELLED:
+        case OrderStatus.CLIENT_AWAITING_PAYMENT_DETAILS:
+        case OrderStatus.AWAITING_PAYMENT:
+        case OrderStatus.PENDING:
+        case OrderStatus.DELIVERED:
+          return await prisma.order.update({
+            where: { id: orderId },
+            data: { status }
+          });
+
+        default:
+          throw new Error(`Unhandled order status: ${status}`);
+      }
     });
   }
 };

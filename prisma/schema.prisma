@@ -240,7 +240,6 @@ model StockProduct {
   cost_price             Float?
   selling_price          Float?
   stock_items            StockItem[]
-  is_ready_to_ship       Boolean                            @default(false)
   store_id               String
   store                  Store                              @relation(fields: [store_id], references: [id])
   images                 StockProductImages[]
@@ -290,6 +289,7 @@ model StockItem {
   status           StockStatus
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
+  is_ready_to_ship Boolean          @default(false)
   size             String?
   color            String?
   stock_product_id String
@@ -304,7 +304,7 @@ model OrderStockItem {
   stock_item_id String
   stock_item    StockItem @relation(fields: [stock_item_id], references: [id])
   created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt @default(now())
+  updated_at    DateTime  @default(now()) @updatedAt
 }
 
 model Order {

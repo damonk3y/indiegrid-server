@@ -4,6 +4,7 @@ import { AuthenticatedRequest } from "@/guards/types";
 import { directClientsModuleController } from "./direct-clients/direct-clients.controller";
 import { livestreamsController } from "./livestreams/livestreams.controller";
 import { ordersController } from "./orders.ts/orders.controller";
+import { stockItemsModuleController } from "../stock-items/stock-items.controller";
 
 enum MODULES {
   STOCKS_MODULE = "STOCKS_MODULE",
@@ -24,9 +25,18 @@ modulesController.use(
 );
 
 modulesController.use(
-  "/direct-clients",
+  "/stock-items",
   (req: AuthenticatedRequest, _: Response, next: NextFunction) => {
     req.module = MODULES.STOCKS_MODULE;
+    next();
+  },
+  stockItemsModuleController
+);
+
+modulesController.use(
+  "/direct-clients",
+  (req: AuthenticatedRequest, _: Response, next: NextFunction) => {
+    req.module = MODULES.DIRECT_CLIENTS_MODULE;
     next();
   },
   directClientsModuleController
