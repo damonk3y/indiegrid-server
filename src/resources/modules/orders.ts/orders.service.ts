@@ -158,7 +158,20 @@ export const ordersService = {
             data: { status }
           });
         }
-        case OrderStatus.CANCELLED:
+        case OrderStatus.CANCELLED: {
+          await prisma.stockItem.updateMany({
+            where: {
+              id: {
+                in: orderStockItems.map(item => item.stock_item_id)
+              }
+            },
+            data: { status: StockStatus.AVAILABLE }
+          });
+          return await prisma.order.update({
+            where: { id: orderId },
+            data: { status }
+          });
+        }
         case OrderStatus.CLIENT_AWAITING_PAYMENT_DETAILS:
         case OrderStatus.AWAITING_PAYMENT:
         case OrderStatus.PENDING:
