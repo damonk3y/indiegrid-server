@@ -130,14 +130,17 @@ export const ordersService = {
         select: { stock_item_id: true }
       });
       switch (status) {
-        case OrderStatus.STORED: {
+        case OrderStatus.STORED:
+        case OrderStatus.STORED_UNPAID: {
           await prisma.stockItem.updateMany({
             where: {
               id: {
                 in: orderStockItems.map(item => item.stock_item_id)
               }
             },
-            data: { status: StockStatus.STORED_TO_SHIP_LATER }
+            data: {
+              status: StockStatus.STORED_TO_SHIP_LATER
+            }
           });
           return await prisma.order.update({
             where: { id: orderId },
