@@ -1,4 +1,5 @@
 import express, { Router } from "express";
+import multer from "multer";
 import logger from "@/utils/logger";
 import { sessionGuard } from "@/guards/session.guard";
 import { storeModuleGuard } from "@/guards/store-module.guard";
@@ -8,8 +9,7 @@ import { patchDirectClientValidator } from "./dto/patch-direct-client.dto";
 import { Pagy } from "@/utils/pagy";
 import { reserveProductValidator } from "./dto/reserve-product.dto";
 import { cancelProductReservationValidator } from "./dto/cancel-product-reservation.dto";
-import multer from "multer";
-import { updateThumbnailValidator } from "../stocks/dto/update-thumbnail.dto";
+import { updateThumbnailValidator } from "./dto/update-thumbnail.dto";
 
 const upload = multer({
   storage: multer.memoryStorage()

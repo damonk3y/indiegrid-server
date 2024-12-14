@@ -8,6 +8,7 @@ import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { createStockProductValidator } from "./dto/create-stock-product.dto";
 import { Pagy } from "@/utils/pagy";
+import { updateStockProductValidator } from "./dto/update-stock-product.dto copy";
 
 const upload = multer({
   storage: multer.memoryStorage()
@@ -108,6 +109,57 @@ stocksModuleController.post(
       logger.error(error);
       res.status(500).json({
         message: "Something went wrong while uploading the photo"
+      });
+    }
+  }
+);
+
+stocksModuleController.put(
+  "/stores/:storeId/products/:productId",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  upload.single("image"),
+  express.json(),
+  updateStockProductValidator,
+  async (req, res) => {
+    try {
+      logger.info("Updating stock product");
+      const { storeId, productId } = req.params;
+      if (!isUUID(storeId) || !isUUID(productId)) {
+        res
+          .status(400)
+          .json({ message: "Invalid store ID or product ID" });
+        logger.error("Store ID or Product ID is not valid");
+        return;
+      }
+
+      let image_url = undefined;
+      if (req.file) {
+        logger.info("Uploading new stock product photo");
+        const uploadResult = await stocksModuleService.updateProductPhoto(req.file);
+        image_url = uploadResult.image_url;
+        if (!image_url) {
+          throw "Error saving image";
+        }
+      }
+
+      logger.info("Updating stock product data");
+      await stocksModuleService.updateStockProduct(
+        storeId,
+        productId,
+        req.body,
+        image_url
+      );
+
+      res.status(200).json({
+        message: "Product updated successfully"
+      });
+    } catch (error) {
+      logger.error("Error updating product");
+      logger.error(error);
+      res.status(500).json({
+        message: "Something went wrong while updating the product"
       });
     }
   }

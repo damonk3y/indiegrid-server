@@ -156,11 +156,9 @@ export const updateProductPhoto = async (
         "No image file provided or invalid image buffer"
       );
     }
-
-    // Optimize the image using sharp
     const optimizedImageBuffer = await sharp(image.buffer)
-      .resize(800) // Resize to a width of 800px, maintaining aspect ratio
-      .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+      .resize(800)
+      .jpeg({ quality: 80 })
       .toBuffer();
 
     const bucketName =
@@ -192,9 +190,31 @@ export const updateProductPhoto = async (
   }
 };
 
+export const updateStockProduct = async (
+  storeId: string,
+  productId: string,
+  stockProduct: CreateStockProductDto,
+  imageUrl?: string
+) => {
+  return await prisma.stockProduct.update({
+    where: {
+      id: productId,
+      store_id: storeId
+    },
+    data: {
+      cost_price: stockProduct.cost_price,
+      selling_price: stockProduct.selling_price,
+      weight_in_kgs: stockProduct.weight_in_kgs,
+      internal_reference_id: stockProduct.internal_reference_id,
+      ...(imageUrl && { image_url: imageUrl }),
+    },
+  });
+};
+
 export const stocksModuleService = {
   getStoreStock,
   getStoreStockProduct,
   createStockProduct,
-  updateProductPhoto
+  updateProductPhoto,
+  updateStockProduct
 };
