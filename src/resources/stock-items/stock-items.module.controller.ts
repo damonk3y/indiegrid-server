@@ -3,7 +3,7 @@ import logger from "@/utils/logger";
 import { sessionGuard } from "@/guards/session.guard";
 import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
-import { stockItemsService } from "./stock-items.service";
+import { stockItemsService } from "./stock-items.module.service";
 import { createFlagAsReadyToShipValidator } from "./dto/flag-as-ready-to-ship.dto";
 
 export const stockItemsModuleController = Router();

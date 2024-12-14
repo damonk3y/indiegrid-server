@@ -3,9 +3,9 @@ import logger from "@/utils/logger";
 import { sessionGuard } from "@/guards/session.guard";
 import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
-import { ordersService } from "./orders.service";
+import { ordersService } from "./orders.module.service";
 import { OrderStatus } from "@prisma/client";
-import { updateOrderStatusValidator } from "./update-order-status.dto";
+import { updateOrderStatusValidator } from "./dto/update-order-status.dto";
 
 export const ordersController = Router();
 

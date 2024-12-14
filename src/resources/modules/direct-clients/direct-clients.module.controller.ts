@@ -3,7 +3,7 @@ import logger from "@/utils/logger";
 import { sessionGuard } from "@/guards/session.guard";
 import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
-import { directClientsModuleService } from "./direct-clients.service";
+import { directClientsModuleService } from "./direct-clients.module.service";
 import { patchDirectClientValidator } from "./dto/patch-direct-client.dto";
 import { Pagy } from "@/utils/pagy";
 import { reserveProductValidator } from "./dto/reserve-product.dto";

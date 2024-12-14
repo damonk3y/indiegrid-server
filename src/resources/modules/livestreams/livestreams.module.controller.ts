@@ -3,7 +3,7 @@ import logger from "@/utils/logger";
 import { sessionGuard } from "@/guards/session.guard";
 import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
-import { livestreamsService } from "./livestreams.service";
+import { livestreamsService } from "./livestreams.module.service";
 import { createLivestreamValidator } from "./dto/create-livestream.dto";
 import { addProductToLivestreamCollectionValidator } from "./dto/add-product-to-livestream-collection.dto";
 

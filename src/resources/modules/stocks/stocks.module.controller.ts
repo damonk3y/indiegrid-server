@@ -23,12 +23,14 @@ stocksModuleController.get(
   async (req, res) => {
     try {
       const { storeId } = req.params;
-      const { search, page, per_page } = req.query;
+      const { search, page, per_page, is_ready_to_ship, returned } = req.query;
       const pagy = new Pagy(page as string, per_page as string);
       const storeStock = await stocksModuleService.getStoreStock(
         storeId,
         pagy,
-        search as string
+        search as string,
+        !!is_ready_to_ship,
+        !!returned
       );
       res.status(201).json(storeStock);
     } catch (error) {

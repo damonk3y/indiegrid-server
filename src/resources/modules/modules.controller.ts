@@ -1,10 +1,10 @@
 import { Router, Response, NextFunction } from "express";
 import { stocksModuleController } from "./stocks/stocks.module.controller";
 import { AuthenticatedRequest } from "@/guards/types";
-import { directClientsModuleController } from "./direct-clients/direct-clients.controller";
-import { livestreamsController } from "./livestreams/livestreams.controller";
-import { ordersController } from "./orders.ts/orders.controller";
-import { stockItemsModuleController } from "../stock-items/stock-items.controller";
+import { directClientsModuleController } from "./direct-clients/direct-clients.module.controller";
+import { livestreamsController } from "./livestreams/livestreams.module.controller";
+import { ordersController } from "./orders.ts/orders.module.controller";
+import { stockItemsModuleController } from "../stock-items/stock-items.module.controller";
 
 enum MODULES {
   STOCKS_MODULE = "STOCKS_MODULE",

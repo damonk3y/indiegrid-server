@@ -9,11 +9,27 @@ import { Pagy } from "@/utils/pagy";
 export const getStoreStock = async (
   storeId: string,
   pagy: Pagy,
-  searchQuery?: string
+  searchQuery?: string,
+  isReadyToShip?: boolean,
+  returned?: boolean
 ) => {
   const stockProducts = await prisma.stockProduct.findMany({
     where: {
       store_id: storeId,
+      ...(isReadyToShip && {
+        stock_items: {
+          some: {
+            is_ready_to_ship: true
+          }
+        }
+      }),
+      ...(returned && {
+        stock_items: {
+          some: {
+            status: StockStatus.RETURNED
+          }
+        }
+      }),
       OR: searchQuery
         ? [
             {

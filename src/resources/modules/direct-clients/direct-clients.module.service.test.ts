@@ -1,5 +1,5 @@
 import { prisma } from "@/clients/prisma";
-import { directClientsModuleService } from "./direct-clients.service";
+import { directClientsModuleService } from "./direct-clients.module.service";
 import { Pagy } from "@/utils/pagy";
 
 jest.mock("@/clients/prisma", () => ({
