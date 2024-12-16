@@ -9,24 +9,26 @@ import { createFlagAsReadyToShipValidator } from "./dto/flag-as-ready-to-ship.dt
 export const stockItemsModuleController = Router();
 
 stockItemsModuleController.patch(
-  "/stores/:storeId/stock-items/:stockItemId/return",
+  "/stores/:storeId/stock-items/:stockItemId/orders/:orderId/return",
   express.json(),
   sessionGuard,
   storeManagerGuard,
   storeModuleGuard,
   async (req, res) => {
     try {
-      const { storeId, stockItemId } = req.params;
+      const { storeId, stockItemId, orderId } = req.params;
+      const { isUnsellable } = req.query;
       if (!storeId) {
-        res
-          .status(400)
-          .json({
-            message: "Store ID and stock item ID are required"
-          });
+        res.status(400).json({
+          message: "Store ID and stock item ID are required"
+        });
         return;
       }
-      const stockItem =
-        await stockItemsService.returnStockItem(stockItemId);
+      const stockItem = await stockItemsService.returnStockItem(
+        stockItemId,
+        orderId,
+        !!isUnsellable
+      );
       res.status(200).json(stockItem);
     } catch (error) {
       logger.error("Error returning stock product");
@@ -47,15 +49,15 @@ stockItemsModuleController.patch(
     try {
       const { storeId, stockProductId } = req.params;
       if (!storeId) {
-        res
-          .status(400)
-          .json({
-            message: "Store ID and stock product ID are required"
-          });
+        res.status(400).json({
+          message: "Store ID and stock product ID are required"
+        });
         return;
       }
-      const stockItem =
-        await stockItemsService.flagAsReadyToShip(stockProductId, req.body.amount);
+      const stockItem = await stockItemsService.flagAsReadyToShip(
+        stockProductId,
+        req.body.amount
+      );
       res.status(200).json(stockItem);
     } catch (error) {
       logger.error("Error returning stock product");

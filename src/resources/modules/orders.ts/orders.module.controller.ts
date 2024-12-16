@@ -6,7 +6,7 @@ import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { ordersService } from "./orders.module.service";
 import { OrderStatus } from "@prisma/client";
 import { updateOrderStatusValidator } from "./dto/update-order-status.dto";
-import multer from 'multer';
+import multer from "multer";
 
 export const ordersController = Router();
 

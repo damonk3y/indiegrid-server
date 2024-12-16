@@ -183,7 +183,6 @@ export const ordersService = {
             where: { id: orderId },
             data: { status }
           });
-
         default:
           throw new Error(`Unhandled order status: ${status}`);
       }

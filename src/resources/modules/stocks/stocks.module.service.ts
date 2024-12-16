@@ -26,7 +26,11 @@ export const getStoreStock = async (
       ...(returned && {
         stock_items: {
           some: {
-            status: StockStatus.RETURNED
+            order_items: {
+              some: {
+                was_returned: true
+              }
+            }
           }
         }
       }),
@@ -206,8 +210,8 @@ export const updateStockProduct = async (
       selling_price: stockProduct.selling_price,
       weight_in_kgs: stockProduct.weight_in_kgs,
       internal_reference_id: stockProduct.internal_reference_id,
-      ...(imageUrl && { image_url: imageUrl }),
-    },
+      ...(imageUrl && { image_url: imageUrl })
+    }
   });
 };
 

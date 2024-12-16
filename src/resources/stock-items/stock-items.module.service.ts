@@ -2,19 +2,63 @@ import { prisma } from "@/clients/prisma";
 import { StockItem, StockStatus } from "@prisma/client";
 
 export const stockItemsService = {
-  async returnStockItem(stockItemId: string): Promise<StockItem> {
-    return await prisma.stockItem.update({
-      where: {
-        id: stockItemId
-      },
-      data: {
-        status: StockStatus.AVAILABLE
+  async returnStockItem(
+    stockItemId: string,
+    orderId: string,
+    isUnsellable: boolean
+  ): Promise<StockItem> {
+    return await prisma.$transaction(async (tx) => {
+      const stockItem = await tx.stockItem.findUnique({
+        where: {
+          id: stockItemId,
+          status: StockStatus.AVAILABLE
+        },
+        include: {
+          order_items: {
+            where: {
+              order_id: orderId
+            },
+            orderBy: {
+              created_at: "desc"
+            },
+            take: 1
+          }
+        }
+      });
+      if (!stockItem) {
+        throw new Error('Stock item not found');
       }
+      if (stockItem.order_items.length === 0) {
+        throw new Error('No order items found for this stock item');
+      }
+      return await tx.stockItem.update({
+        where: {
+          id: stockItemId
+        },
+        data: {
+          status: isUnsellable
+            ? StockStatus.UNSELLABLE
+            : StockStatus.AVAILABLE,
+          order_items: {
+            update: {
+              where: {
+                id: stockItem.order_items[0].id
+              },
+              data: {
+                was_returned: true
+              },
+            }
+          }
+        },
+      });
     });
   },
 
-  async flagAsReadyToShip(stockProductId: string, amount: number): Promise<void> {
-    await prisma.$transaction(async (prisma) => {
+  async flagAsReadyToShip(
+    stockProductId: string,
+    amount: number
+  ): Promise<void> {
+    await prisma.$transaction(async prisma => {
       const itemsToUpdate = await prisma.stockItem.findMany({
         where: {
           stock_product_id: stockProductId,

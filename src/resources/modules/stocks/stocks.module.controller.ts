@@ -24,7 +24,8 @@ stocksModuleController.get(
   async (req, res) => {
     try {
       const { storeId } = req.params;
-      const { search, page, per_page, is_ready_to_ship, returned } = req.query;
+      const { search, page, per_page, is_ready_to_ship, returned } =
+        req.query;
       const pagy = new Pagy(page as string, per_page as string);
       const storeStock = await stocksModuleService.getStoreStock(
         storeId,
@@ -137,7 +138,8 @@ stocksModuleController.put(
       let image_url = undefined;
       if (req.file) {
         logger.info("Uploading new stock product photo");
-        const uploadResult = await stocksModuleService.updateProductPhoto(req.file);
+        const uploadResult =
+          await stocksModuleService.updateProductPhoto(req.file);
         image_url = uploadResult.image_url;
         if (!image_url) {
           throw "Error saving image";

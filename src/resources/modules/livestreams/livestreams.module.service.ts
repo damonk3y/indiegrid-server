@@ -26,20 +26,39 @@ class LivestreamsService {
       }
     });
     const parsedCollections = collections.map(collection => {
-      const collectionStats = collection.stock_products.reduce((acc, product) => {
-        const soldItemsCount = product.stock_product.stock_items.reduce((itemAcc, item) => 
-          itemAcc + (item.status === StockStatus.RESERVED || 
-                     item.status === StockStatus.STORED_TO_SHIP_LATER || 
-                     item.status === StockStatus.SENT ? 1 : 0), 0);
-        const sellingPrice = product.stock_product.selling_price ?? 0;
-        const soldValue = soldItemsCount * sellingPrice;
-        return {
-          total_value: acc.total_value + ((product.stock_product.selling_price ?? 0) * (product.stock_product.stock_items.length ?? 0)),
-          sold_value: acc.sold_value + soldValue,
-          total_items: acc.total_items + (soldItemsCount ?? 0),
-          sold_items: acc.sold_items + (soldItemsCount ?? 0)
-        };
-      }, { total_value: 0, sold_value: 0, total_items: 0, sold_items: 0 });
+      const collectionStats = collection.stock_products.reduce(
+        (acc, product) => {
+          const soldItemsCount =
+            product.stock_product.stock_items.reduce(
+              (itemAcc, item) =>
+                itemAcc +
+                (item.status === StockStatus.RESERVED ||
+                item.status === StockStatus.STORED_TO_SHIP_LATER ||
+                item.status === StockStatus.SENT
+                  ? 1
+                  : 0),
+              0
+            );
+          const sellingPrice =
+            product.stock_product.selling_price ?? 0;
+          const soldValue = soldItemsCount * sellingPrice;
+          return {
+            total_value:
+              acc.total_value +
+              (product.stock_product.selling_price ?? 0) *
+                (product.stock_product.stock_items.length ?? 0),
+            sold_value: acc.sold_value + soldValue,
+            total_items: acc.total_items + (soldItemsCount ?? 0),
+            sold_items: acc.sold_items + (soldItemsCount ?? 0)
+          };
+        },
+        {
+          total_value: 0,
+          sold_value: 0,
+          total_items: 0,
+          sold_items: 0
+        }
+      );
       return {
         ...collection,
         ...collectionStats

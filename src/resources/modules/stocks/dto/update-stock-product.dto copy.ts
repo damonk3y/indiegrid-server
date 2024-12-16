@@ -105,7 +105,9 @@ export const updateStockProductValidator = async (
     );
     await validateOrReject(stockProduct);
     req.body = stockProduct;
-    logger.info("-> stock product update request validated successfully");
+    logger.info(
+      "-> stock product update request validated successfully"
+    );
     next();
   } catch (e) {
     logger.error("-> stock product update validation failed");
