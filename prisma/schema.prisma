@@ -291,9 +291,7 @@ model StockItem {
   created_at           DateTime         @default(now())
   updated_at           DateTime         @updatedAt
   is_ready_to_ship     Boolean          @default(false)
-  has_defect           Boolean          @default(false)
   defect_note          String?
-  custom_selling_price Float?
   size                 String?
   color                String?
   stock_product_id     String

@@ -7,16 +7,25 @@ export const stockItemsService = {
     orderId: string,
     isUnsellable: boolean
   ): Promise<StockItem> {
-    return await prisma.$transaction(async (tx) => {
-      const stockItem = await tx.stockItem.findUnique({
+    return await prisma.$transaction(async tx => {
+      const stockItem = await tx.stockItem.findFirst({
         where: {
           id: stockItemId,
-          status: StockStatus.AVAILABLE
         },
         include: {
           order_items: {
             where: {
-              order_id: orderId
+              was_returned: false,
+              OR: [
+                {
+                  order_id: orderId,
+                },
+                {
+                  order: {
+                    public_id: orderId
+                  }
+                }
+              ]
             },
             orderBy: {
               created_at: "desc"
@@ -26,10 +35,10 @@ export const stockItemsService = {
         }
       });
       if (!stockItem) {
-        throw new Error('Stock item not found');
+        throw new Error("Stock item not found");
       }
       if (stockItem.order_items.length === 0) {
-        throw new Error('No order items found for this stock item');
+        throw new Error("No order items found for this stock item");
       }
       return await tx.stockItem.update({
         where: {
@@ -46,10 +55,10 @@ export const stockItemsService = {
               },
               data: {
                 was_returned: true
-              },
+              }
             }
           }
-        },
+        }
       });
     });
   },
@@ -78,6 +87,58 @@ export const stockItemsService = {
         },
         data: {
           is_ready_to_ship: true
+        }
+      });
+    });
+  },
+
+  async removeStockItemFromOrder(
+    stockItemId: string,
+    orderId: string
+  ): Promise<StockItem> {
+    return await prisma.$transaction(async tx => {
+      const stockItem = await tx.stockItem.findFirst({
+        where: {
+          id: stockItemId,
+        },
+        include: {
+          order_items: {
+            where: {
+              was_returned: false,
+              OR: [
+                { order_id: orderId },
+                { order: { public_id: orderId } }
+              ]
+            },
+            orderBy: { created_at: "desc" },
+            take: 1
+          }
+        }
+      });
+
+      if (!stockItem) {
+        throw new Error("Stock item not found");
+      }
+      if (stockItem.order_items.length === 0) {
+        throw new Error("No order items found for this stock item");
+      }
+
+      return await tx.stockItem.update({
+        where: {
+          id: stockItemId
+        },
+        data: {
+          status: StockStatus.AVAILABLE,
+          order_items: {
+            update: {
+              where: {
+                id: stockItem.order_items[0].id
+              },
+              data: {
+                was_returned: true
+              }
+            }
+          }
         }
       });
     });

@@ -6,7 +6,6 @@ import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { ordersService } from "./orders.module.service";
 import { OrderStatus } from "@prisma/client";
 import { updateOrderStatusValidator } from "./dto/update-order-status.dto";
-import multer from "multer";
 
 export const ordersController = Router();
 
@@ -63,7 +62,7 @@ ordersController.get(
       res.status(500).json({ message: "Something went wrong" });
     }
   }
-)
+);
 
 ordersController.get(
   "/stores/:storeId/orders/:orderId",
@@ -80,9 +79,7 @@ ordersController.get(
           .json({ message: "Store ID and order ID are required" });
         return;
       }
-      const clientOrders = await ordersService.getOrder(
-        orderId
-      );
+      const clientOrders = await ordersService.getOrder(orderId);
       res.status(200).json(clientOrders);
     } catch (error) {
       logger.error("Error getting order");
@@ -124,6 +121,35 @@ ordersController.get(
 );
 
 ordersController.patch(
+  "/stores/:storeId/orders/:orderId/return",
+  express.json(),
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { storeId, orderId } = req.params;
+      const { isUnsellable } = req.query;
+      if (!storeId) {
+        res
+          .status(400)
+          .json({ message: "Store ID and order ID are required" });
+        return;
+      }
+      const productOrders = await ordersService.returnOrder(
+        orderId,
+        !!isUnsellable
+      );
+      res.status(200).json(productOrders);
+    } catch (error) {
+      logger.error("Error getting product orders");
+      logger.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+);
+
+ordersController.patch(
   "/stores/:storeId/orders/:orderId",
   express.json(),
   sessionGuard,
@@ -138,6 +164,36 @@ ordersController.patch(
         res
           .status(400)
           .json({ message: "Store ID and order ID are required" });
+        return;
+      }
+      const productOrders = await ordersService.updateOrderStatus(
+        orderId,
+        req.body.status
+      );
+      res.status(200).json(productOrders);
+    } catch (error) {
+      logger.error("Error getting product orders");
+      logger.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+);
+
+ordersController.post(
+  "/stores/:storeId/orders/:orderId/products/:productId",
+  express.json(),
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  updateOrderStatusValidator,
+  async (req, res) => {
+    try {
+      const { storeId, orderId, productId } = req.params;
+
+      if (!storeId) {
+        res
+          .status(400)
+          .json({ message: "Store ID, order ID and product ID are required" });
         return;
       }
       const productOrders = await ordersService.updateOrderStatus(

@@ -5,6 +5,7 @@ import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { stockItemsService } from "./stock-items.module.service";
 import { createFlagAsReadyToShipValidator } from "./dto/flag-as-ready-to-ship.dto";
+import { ordersService } from "@/resources/modules/orders.ts/orders.module.service";
 
 export const stockItemsModuleController = Router();
 
@@ -61,6 +62,24 @@ stockItemsModuleController.patch(
       res.status(200).json(stockItem);
     } catch (error) {
       logger.error("Error returning stock product");
+      logger.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+);
+
+stockItemsModuleController.delete(
+  "/stores/:storeId/stock-items/:stockItemId/orders/:orderId",
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { stockItemId, orderId } = req.params;
+      const updatedOrder = await stockItemsService.removeStockItemFromOrder(stockItemId, orderId);
+      res.status(200).json(updatedOrder);
+    } catch (error) {
+      logger.error("Error removing stock item from order");
       logger.error(error);
       res.status(500).json({ message: "Something went wrong" });
     }

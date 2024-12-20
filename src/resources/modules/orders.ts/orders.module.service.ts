@@ -42,16 +42,13 @@ export const ordersService = {
   async getOrder(orderId: string): Promise<Order | null> {
     return await prisma.order.findFirst({
       where: {
-        OR: [
-          { id: orderId },
-          { public_id: orderId }
-        ]
+        OR: [{ id: orderId }, { public_id: orderId }]
       },
       include: {
         direct_client: {
           include: {
             addresses: true,
-            coupons: true,
+            coupons: true
           }
         },
         stock_items: {
@@ -156,7 +153,7 @@ export const ordersService = {
   ): Promise<Order> {
     return await prisma.$transaction(async prisma => {
       const orderStockItems = await prisma.orderStockItem.findMany({
-        where: { order_id: orderId },
+        where: { order_id: orderId, was_returned: false },
         select: { stock_item_id: true }
       });
       switch (status) {
@@ -207,7 +204,7 @@ export const ordersService = {
         }
         case OrderStatus.CLIENT_AWAITING_PAYMENT_DETAILS:
         case OrderStatus.AWAITING_PAYMENT:
-          case OrderStatus.PENDING:
+        case OrderStatus.PENDING:
           await prisma.stockItem.updateMany({
             where: {
               id: {
@@ -236,6 +233,30 @@ export const ordersService = {
         default:
           throw new Error(`Unhandled order status: ${status}`);
       }
+    });
+  },
+
+  async returnOrder(orderId: string, isUnsellable: boolean): Promise<Order> {
+    return await prisma.$transaction(async prisma => {
+      const orderStockItems = await prisma.orderStockItem.findMany({
+        where: { order_id: orderId },
+        select: { stock_item_id: true }
+      });
+      await prisma.stockItem.updateMany({
+        where: { id: { in: orderStockItems.map(item => item.stock_item_id) } },
+        data: { status: isUnsellable ? StockStatus.UNSELLABLE : StockStatus.AVAILABLE }
+      });
+      return await prisma.order.update({
+        where: { id: orderId },
+        data: { status: OrderStatus.CANCELLED }
+      });
+    });
+  },
+
+  async addStockItemToOrder(orderId: string, stockItemId: string): Promise<Order> {
+    return await prisma.order.update({
+      where: { id: orderId },
+      data: { stock_items: { connect: { id: stockItemId } } }
     });
   }
 };
