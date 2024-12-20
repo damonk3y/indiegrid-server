@@ -63,6 +63,33 @@ ordersController.get(
       res.status(500).json({ message: "Something went wrong" });
     }
   }
+)
+
+ordersController.get(
+  "/stores/:storeId/orders/:orderId",
+  express.json(),
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { storeId, orderId } = req.params;
+      if (!storeId || !orderId) {
+        res
+          .status(400)
+          .json({ message: "Store ID and order ID are required" });
+        return;
+      }
+      const clientOrders = await ordersService.getOrder(
+        orderId
+      );
+      res.status(200).json(clientOrders);
+    } catch (error) {
+      logger.error("Error getting order");
+      logger.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
 );
 
 ordersController.get(

@@ -244,7 +244,8 @@ export const directClientsModuleService = {
           email: data.email,
           phone: data.phone,
           facebook_url: data.facebook_url,
-          instagram_url: data.instagram_url
+          instagram_url: data.instagram_url,
+          chat_url: data.chat_url
         },
         include: {
           addresses: true,

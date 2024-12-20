@@ -78,6 +78,7 @@ model DirectClient {
   handle        String?
   email         String?
   phone         String?
+  note          String?
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
   addresses     Address[]
@@ -284,17 +285,20 @@ model LivestreamCollection {
 }
 
 model StockItem {
-  id               String           @id @default(uuid())
-  public_id        String           @unique @default(cuid())
-  status           StockStatus
-  created_at       DateTime         @default(now())
-  updated_at       DateTime         @updatedAt
-  is_ready_to_ship Boolean          @default(false)
-  size             String?
-  color            String?
-  stock_product_id String
-  stock_product    StockProduct     @relation(fields: [stock_product_id], references: [id])
-  order_items      OrderStockItem[]
+  id                   String           @id @default(uuid())
+  public_id            String           @unique @default(cuid())
+  status               StockStatus
+  created_at           DateTime         @default(now())
+  updated_at           DateTime         @updatedAt
+  is_ready_to_ship     Boolean          @default(false)
+  has_defect           Boolean          @default(false)
+  defect_note          String?
+  custom_selling_price Float?
+  size                 String?
+  color                String?
+  stock_product_id     String
+  stock_product        StockProduct     @relation(fields: [stock_product_id], references: [id])
+  order_items          OrderStockItem[]
 }
 
 model OrderStockItem {
@@ -317,6 +321,7 @@ model Order {
   updated_at               DateTime              @updatedAt
   direct_client_id         String?
   livestream_collection_id String?
+  note                     String?
   livestream_collection    LivestreamCollection? @relation(fields: [livestream_collection_id], references: [id])
   direct_client            DirectClient?         @relation(fields: [direct_client_id], references: [id])
   stock_items              OrderStockItem[]

@@ -73,6 +73,11 @@ export class PatchDirectClientDTO {
   instagram_url?: string;
 
   @IsOptional()
+  @IsUrl({ require_tld: false })
+  @Transform(({ value }) => (value === "" ? undefined : value))
+  chat_url?: string;
+
+  @IsOptional()
   @IsEmail()
   @Transform(({ value }) => (value === "" ? undefined : value))
   email?: string;

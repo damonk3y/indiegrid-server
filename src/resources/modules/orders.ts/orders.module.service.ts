@@ -39,6 +39,36 @@ export const ordersService = {
     });
   },
 
+  async getOrder(orderId: string): Promise<Order | null> {
+    return await prisma.order.findFirst({
+      where: {
+        OR: [
+          { id: orderId },
+          { public_id: orderId }
+        ]
+      },
+      include: {
+        direct_client: {
+          include: {
+            addresses: true,
+            coupons: true,
+          }
+        },
+        stock_items: {
+          include: {
+            stock_item: {
+              include: {
+                stock_product: {
+                  include: { images: true }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+  },
+
   async getDirectClientOrders(
     storeId: string,
     clientId: string
@@ -177,8 +207,28 @@ export const ordersService = {
         }
         case OrderStatus.CLIENT_AWAITING_PAYMENT_DETAILS:
         case OrderStatus.AWAITING_PAYMENT:
-        case OrderStatus.PENDING:
+          case OrderStatus.PENDING:
+          await prisma.stockItem.updateMany({
+            where: {
+              id: {
+                in: orderStockItems.map(item => item.stock_item_id)
+              }
+            },
+            data: { status: StockStatus.RESERVED }
+          });
+          return await prisma.order.update({
+            where: { id: orderId },
+            data: { status }
+          });
         case OrderStatus.DELIVERED:
+          await prisma.stockItem.updateMany({
+            where: {
+              id: {
+                in: orderStockItems.map(item => item.stock_item_id)
+              }
+            },
+            data: { status: StockStatus.SENT }
+          });
           return await prisma.order.update({
             where: { id: orderId },
             data: { status }
