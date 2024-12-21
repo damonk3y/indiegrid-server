@@ -160,7 +160,7 @@ ordersController.patch(
     try {
       const { storeId, orderId } = req.params;
 
-      if (!storeId) {
+      if (!storeId || !orderId) {
         res
           .status(400)
           .json({ message: "Store ID and order ID are required" });
@@ -185,20 +185,19 @@ ordersController.post(
   sessionGuard,
   storeManagerGuard,
   storeModuleGuard,
-  updateOrderStatusValidator,
   async (req, res) => {
     try {
       const { storeId, orderId, productId } = req.params;
 
-      if (!storeId) {
+      if (!storeId || !orderId || !productId) {
         res
           .status(400)
           .json({ message: "Store ID, order ID and product ID are required" });
         return;
       }
-      const productOrders = await ordersService.updateOrderStatus(
+      const productOrders = await ordersService.addProductToOrder(
         orderId,
-        req.body.status
+        productId
       );
       res.status(200).json(productOrders);
     } catch (error) {

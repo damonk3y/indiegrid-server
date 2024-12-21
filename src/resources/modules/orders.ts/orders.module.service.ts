@@ -253,10 +253,32 @@ export const ordersService = {
     });
   },
 
-  async addStockItemToOrder(orderId: string, stockItemId: string): Promise<Order> {
-    return await prisma.order.update({
-      where: { id: orderId },
-      data: { stock_items: { connect: { id: stockItemId } } }
+  async addProductToOrder(orderId: string, productId: string): Promise<string> {
+    await prisma.$transaction(async (prisma) => {
+      const availableStockItem = await prisma.stockItem.findFirst({
+        where: {
+          stock_product_id: productId,
+          status: StockStatus.AVAILABLE
+        }
+      });
+
+      if (!availableStockItem) {
+        throw new Error('No available stock items found for this product');
+      }
+
+      await prisma.orderStockItem.create({
+        data: {
+          order_id: orderId,
+          stock_item_id: availableStockItem.id,
+          was_returned: false
+        }
+      });
+
+      await prisma.stockItem.update({
+        where: { id: availableStockItem.id },
+        data: { status: StockStatus.RESERVED }
+      });
     });
+    return "Ok";
   }
 };
