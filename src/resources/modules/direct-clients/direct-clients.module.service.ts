@@ -487,10 +487,8 @@ export const directClientsModuleService = {
         optimizedImageBuffer,
         optimizedImageBuffer.length
       );
-      const thumbnailUrl = await minioClient.presignedGetObject(
-        bucketName,
-        objectName
-      );
+      const minioEndpoint = process.env.MINIO_ENDPOINT || 'http://localhost:9000';
+      const thumbnailUrl = `${minioEndpoint}/${bucketName}/${objectName}`;
       const newThumbnail = await prisma.directClient.update({
         where: { id: clientId, store_id: storeId },
         data: {

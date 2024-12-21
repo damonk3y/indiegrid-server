@@ -178,10 +178,8 @@ export const updateProductPhoto = async (
       optimizedImageBuffer,
       optimizedImageBuffer.length
     );
-    const imageUrl = await minioClient.presignedGetObject(
-      bucketName,
-      objectName
-    );
+    const minioEndpoint = process.env.MINIO_ENDPOINT || 'http://localhost:9000';
+    const imageUrl = `${minioEndpoint}/${bucketName}/${objectName}`;
     const newImage = await prisma.stockProductImages.create({
       data: {
         image_url: imageUrl
