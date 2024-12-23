@@ -280,5 +280,19 @@ export const ordersService = {
       });
     });
     return "Ok";
+  },
+
+  async createOrder(
+    storeId: string,
+    directClientId: string,
+    livestreamCollectionId?: string): Promise<Order> {
+    return await prisma.order.create({
+      data: {
+        store_id: storeId,
+        direct_client_id: directClientId,
+        livestream_collection_id: livestreamCollectionId,
+        status: OrderStatus.CLIENT_AWAITING_PAYMENT_DETAILS
+      }
+    });
   }
 };

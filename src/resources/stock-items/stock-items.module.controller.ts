@@ -5,7 +5,7 @@ import { storeModuleGuard } from "@/guards/store-module.guard";
 import { storeManagerGuard } from "@/guards/store-manager.guard";
 import { stockItemsService } from "./stock-items.module.service";
 import { createFlagAsReadyToShipValidator } from "./dto/flag-as-ready-to-ship.dto";
-import { ordersService } from "@/resources/modules/orders.ts/orders.module.service";
+import { ordersService } from "@/resources/modules/orders/orders.module.service";
 
 export const stockItemsModuleController = Router();
 

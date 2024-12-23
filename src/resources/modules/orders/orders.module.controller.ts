@@ -201,7 +201,31 @@ ordersController.post(
       );
       res.status(200).json(productOrders);
     } catch (error) {
-      logger.error("Error getting product orders");
+      logger.error("Error creating order stock item");
+      logger.error(error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+);
+
+ordersController.post(
+  "/stores/:storeId/orders/customers/:directClientId",
+  express.json(),
+  sessionGuard,
+  storeManagerGuard,
+  storeModuleGuard,
+  async (req, res) => {
+    try {
+      const { storeId, directClientId } = req.params;
+      if (!storeId || !directClientId) {
+        res.status(400).json({ message: "Store ID and directClientId is required" });
+        return;
+      }
+
+      const newOrder = await ordersService.createOrder(storeId, directClientId, undefined);
+      res.status(201).json(newOrder);
+    } catch (error) {
+      logger.error("Error creating order");
       logger.error(error);
       res.status(500).json({ message: "Something went wrong" });
     }
