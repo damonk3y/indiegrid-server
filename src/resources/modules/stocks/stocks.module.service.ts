@@ -125,6 +125,7 @@ export const createStockProduct = async (
 ) => {
   await prisma.stockProduct.create({
     data: {
+      name: stockProduct.name,
       cost_price: stockProduct.cost_price,
       selling_price: stockProduct.selling_price,
       weight_in_kgs: stockProduct.weight_in_kgs,
@@ -204,6 +205,7 @@ export const updateStockProduct = async (
       store_id: storeId
     },
     data: {
+      name: stockProduct.name,
       cost_price: stockProduct.cost_price,
       selling_price: stockProduct.selling_price,
       weight_in_kgs: stockProduct.weight_in_kgs,
