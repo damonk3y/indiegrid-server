@@ -89,11 +89,11 @@ stocksModuleController.post(
       if (!req.file) {
         logger.error("No photo uploaded");
       } else {
-        const { image_url } =
-          await stocksModuleService.updateProductPhoto(req.file);
-        if (!image_url) {
-          throw "Error saving image";
-        }
+        const uploadResult = await stocksModuleService.updateProductPhoto(req.file);
+        image_url = uploadResult.image_url;
+      }
+      if (!image_url) {
+        throw "Error saving image";
       }
       logger.info("Creating stock product");
       const product = await stocksModuleService.createStockProduct(
