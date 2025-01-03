@@ -156,83 +156,35 @@ export const ordersService = {
         where: { order_id: orderId, was_returned: false },
         select: { stock_item_id: true }
       });
-      switch (status) {
-        case OrderStatus.STORED:
-        case OrderStatus.STORED_UNPAID: {
-          await prisma.stockItem.updateMany({
-            where: {
-              id: {
-                in: orderStockItems.map(item => item.stock_item_id)
-              }
-            },
-            data: {
-              status: StockStatus.STORED_TO_SHIP_LATER
-            }
-          });
-          return await prisma.order.update({
-            where: { id: orderId },
-            data: { status }
-          });
-        }
-        case OrderStatus.SHIPPED: {
-          await prisma.stockItem.updateMany({
-            where: {
-              id: {
-                in: orderStockItems.map(item => item.stock_item_id)
-              }
-            },
-            data: { status: StockStatus.SENT }
-          });
-          return await prisma.order.update({
-            where: { id: orderId },
-            data: { status }
-          });
-        }
-        case OrderStatus.CANCELLED: {
-          await prisma.stockItem.updateMany({
-            where: {
-              id: {
-                in: orderStockItems.map(item => item.stock_item_id)
-              }
-            },
-            data: { status: StockStatus.AVAILABLE }
-          });
-          return await prisma.order.update({
-            where: { id: orderId },
-            data: { status }
-          });
-        }
-        case OrderStatus.CLIENT_AWAITING_PAYMENT_DETAILS:
-        case OrderStatus.AWAITING_PAYMENT:
-        case OrderStatus.PENDING:
-          await prisma.stockItem.updateMany({
-            where: {
-              id: {
-                in: orderStockItems.map(item => item.stock_item_id)
-              }
-            },
-            data: { status: StockStatus.RESERVED }
-          });
-          return await prisma.order.update({
-            where: { id: orderId },
-            data: { status }
-          });
-        case OrderStatus.DELIVERED:
-          await prisma.stockItem.updateMany({
-            where: {
-              id: {
-                in: orderStockItems.map(item => item.stock_item_id)
-              }
-            },
-            data: { status: StockStatus.SENT }
-          });
-          return await prisma.order.update({
-            where: { id: orderId },
-            data: { status }
-          });
-        default:
-          throw new Error(`Unhandled order status: ${status}`);
+      const stockItemIds = orderStockItems.map(item => item.stock_item_id);
+      const stockStatusMap = {
+        [OrderStatus.STORED]: StockStatus.STORED_TO_SHIP_LATER,
+        [OrderStatus.STORED_UNPAID]: StockStatus.STORED_TO_SHIP_LATER_UNPAID,
+        [OrderStatus.SHIPPED]: StockStatus.SENT,
+        [OrderStatus.CANCELLED]: StockStatus.AVAILABLE,
+        [OrderStatus.CLIENT_AWAITING_PAYMENT_DETAILS]: StockStatus.RESERVED,
+        [OrderStatus.AWAITING_PAYMENT]: StockStatus.RESERVED,
+        [OrderStatus.PENDING]: StockStatus.TO_BE_SHIPPED,
+        [OrderStatus.DELIVERED]: StockStatus.SENT
+      };
+      const newStockStatus = stockStatusMap[status];
+      if (!newStockStatus) {
+        throw new Error(`Unhandled order status: ${status}`);
       }
+      await prisma.stockItem.updateMany({
+        where: {
+          id: {
+            in: stockItemIds
+          }
+        },
+        data: {
+          status: newStockStatus
+        }
+      });
+      return await prisma.order.update({
+        where: { id: orderId },
+        data: { status }
+      });
     });
   },
 
