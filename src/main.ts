@@ -6,6 +6,7 @@ import { config } from "dotenv";
 import cors from "cors";
 import requestIp from "request-ip";
 import "reflect-metadata";
+import statusMonitor from "express-status-monitor";
 import { usersController } from "@/resources/users/users.controller";
 import { healthController } from "@/resources/health/health.controller";
 import { modulesController } from "./resources/modules/modules.controller";
@@ -28,6 +29,10 @@ logger.info("Configuring server middleware and CORS settings");
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(requestIp.mw());
+app.use(statusMonitor({
+  title: 'Beyoutique Status',
+  path: '/status',
+}));
 app.use("/", healthController);
 app.use("/users", usersController);
 app.use("/modules", modulesController);
