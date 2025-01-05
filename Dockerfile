@@ -4,5 +4,7 @@ COPY package.json ./
 COPY yarn.lock ./
 RUN yarn install
 COPY . .
+RUN npx prisma generate
+RUN yarn build
 EXPOSE 8080
-CMD ["bash", "entryfile.sh"]
+CMD ["node", "dist/src/main.js"]
