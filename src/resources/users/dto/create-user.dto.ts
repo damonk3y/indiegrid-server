@@ -1,7 +1,7 @@
 import {
   IsDefined,
   IsEmail,
-  IsStrongPassword,
+  MinLength,
   validateOrReject
 } from "class-validator";
 import { NextFunction, Request, Response } from "express";
@@ -14,7 +14,7 @@ export class CreateUserDTO {
   email!: string;
 
   @IsDefined()
-  @IsStrongPassword()
+  @MinLength(6)
   password!: string;
 }
 

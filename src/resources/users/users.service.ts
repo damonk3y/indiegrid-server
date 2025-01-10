@@ -33,7 +33,8 @@ const createUser = async (user: CreateUserDTO, ip?: string) => {
     data: {
       ...user,
       password: hashedPassword,
-      ip
+      ip,
+      is_email_verified: process.env.NODE_ENV !== "production"
     }
   });
 };
