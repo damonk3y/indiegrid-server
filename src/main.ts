@@ -7,9 +7,7 @@ import cors from "cors";
 import requestIp from "request-ip";
 import "reflect-metadata";
 import statusMonitor from "express-status-monitor";
-import { usersController } from "@/resources/users/users.controller";
-import { healthController } from "@/resources/health/health.controller";
-import { modulesController } from "./resources/modules/modules.controller";
+import waitlistRouter from "@/resources/waitlist";
 import logger from "@/utils/logger";
 
 config();
@@ -30,39 +28,18 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(requestIp.mw());
 app.use(statusMonitor({
-  title: 'Beyoutique Status',
+  title: 'theindiegrid status',
   path: '/status',
 }));
-app.use("/", healthController);
-app.use("/users", usersController);
-app.use("/modules", modulesController);
-
-logger.info("Middleware and routes configured successfully");
+app.use("/waitlist", waitlistRouter);
 
 const port = process.env.PORT || 3000;
 
-if (process.env.NODE_ENV !== "production") {
-  logger.info("Starting server in development mode with HTTPS");
-  const httpsOptions = {
-    key: fs.readFileSync(
-      "/Users/helloiambguedes/Desktop/companies/fashion-marketplace/monolith/certs/localhost.key"
-    ),
-    cert: fs.readFileSync(
-      "/Users/helloiambguedes/Desktop/companies/fashion-marketplace/monolith/certs/localhost.crt"
-    )
-  };
-
-  https.createServer(httpsOptions, app).listen(port, () => {
-    logger.info(`HTTPS Server is running on port ${port}`);
-    logger.info(`Environment: ${process.env.NODE_ENV}`);
-  });
-} else {
-  logger.info("Starting server in production mode");
-  app.listen(port, () => {
-    logger.info(`HTTP Server is running on port ${port}`);
-    logger.info(`Environment: ${process.env.NODE_ENV}`);
-  });
-}
+logger.info("Starting server in production mode");
+app.listen(port, () => {
+  logger.info(`HTTP Server is running on port ${port}`);
+  logger.info(`Environment: ${process.env.NODE_ENV}`);
+});
 
 process.on("SIGINT", () => {
   logger.info(
