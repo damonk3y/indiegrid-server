@@ -8,6 +8,7 @@ import "reflect-metadata";
 import statusMonitor from "express-status-monitor";
 import waitlistRouter from "@/resources/waitlist";
 import logger from "@/utils/logger";
+import prisma from "./clients/prisma";
 
 config();
 
@@ -39,21 +40,24 @@ app.get("/health", (_: Request, res: Response) => {
 const port = process.env.PORT || 3000;
 
 logger.info("Starting server in production mode");
+
 app.listen(port, () => {
   logger.info(`HTTP Server is running on port ${port}`);
   logger.info(`Environment: ${process.env.NODE_ENV}`);
 });
 
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
   logger.info(
     "Received SIGINT signal. Shutting down server gracefully..."
   );
+  await prisma.$disconnect();
   process.exit(0);
 });
 
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
   logger.info(
     "Received SIGTERM signal. Shutting down server gracefully..."
   );
+  await prisma.$disconnect();
   process.exit(0);
 });

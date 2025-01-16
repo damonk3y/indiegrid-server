@@ -1,9 +1,9 @@
 import express, { Router, Request, Response } from "express";
-import { PrismaClient, Prisma } from "@prisma/client";
 import logger from "@/utils/logger";
+import prisma from "@/clients/prisma";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const router = Router();
-const prisma = new PrismaClient();
 
 router.post("/", express.json(), async (req: Request, res: Response): Promise<void> => {
   try {
@@ -21,7 +21,7 @@ router.post("/", express.json(), async (req: Request, res: Response): Promise<vo
     res.status(201).json(waitlistEntry);
     return;
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
       res.status(409).json({ error: "Email already exists in waitlist" });
       return;
     }
