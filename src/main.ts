@@ -1,6 +1,5 @@
-import https from "https";
-import fs from "fs";
-import express from "express";
+
+import express, { Response, Request } from "express";
 import cookieParser from "cookie-parser";
 import { config } from "dotenv";
 import cors from "cors";
@@ -32,6 +31,10 @@ app.use(statusMonitor({
   path: '/status',
 }));
 app.use("/waitlist", waitlistRouter);
+
+app.get("/health", (_: Request, res: Response) => {
+  res.status(200).send("OK");
+});
 
 const port = process.env.PORT || 3000;
 
